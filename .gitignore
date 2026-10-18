@@ -1,0 +1,19 @@
+# OS & Editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+.vscode/
+.idea/
+
+# Dependencies & Build artifacts
+node_modules/
+vendor/
+*.log
+npm-debug.log*
+
+# WordPress / Environment secrets
+.env
+.env.*
+wp-config.php
