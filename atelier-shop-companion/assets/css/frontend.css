@@ -890,3 +890,396 @@
 	color: var(--atelier-muted);
 	text-align: center;
 }
+
+
+/* ==========================================================================
+   9. Bloghash Pro Ported Features (Image Swap, Badges, +/- Qty, Dark Mode,
+      Top Marquee Ticker, Scroll-to-Top, TOC, Quick Likes, Cursor Dot)
+   ========================================================================== */
+
+/* 9.1 Product Image Swap on Hover */
+.atelier-swap-on-hover {
+	position: relative;
+	overflow: hidden;
+	display: block;
+}
+
+.atelier-show-on-hover {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 0.32s ease, transform 0.45s ease;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.atelier-swap-on-hover:hover .atelier-show-on-hover,
+.atelier-product-card-media-wrap:hover .atelier-show-on-hover,
+li.product:hover .atelier-show-on-hover {
+	opacity: 1;
+	transform: scale(1.02);
+}
+
+/* 9.2 Sold Out & Percentage Sale Badges */
+.atelier-sold-out-badge,
+.atelier-pct-badge {
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 4;
+	display: inline-block;
+	padding: 0.25rem 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1.2;
+	border-radius: 3px;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.atelier-pct-badge {
+	background: var(--atelier-sale);
+	color: var(--atelier-base);
+}
+
+.atelier-sold-out-badge {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+}
+
+/* 9.3 Plus / Minus Quantity Stepper Buttons */
+.quantity.atelier-qty-enhanced {
+	display: inline-flex !important;
+	align-items: center;
+	border: 1px solid var(--atelier-border);
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--atelier-base);
+}
+
+.quantity.atelier-qty-enhanced .qty {
+	border: 0 !important;
+	width: 3rem !important;
+	text-align: center;
+	padding: 0.5rem 0.25rem !important;
+	margin: 0 !important;
+	background: transparent;
+	color: var(--atelier-contrast);
+	-moz-appearance: textfield;
+}
+
+.quantity.atelier-qty-enhanced .qty::-webkit-outer-spin-button,
+.quantity.atelier-qty-enhanced .qty::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.atelier-qty-btn {
+	width: 34px;
+	height: 38px;
+	border: 0;
+	background: var(--atelier-surface);
+	color: var(--atelier-contrast);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease;
+	padding: 0;
+}
+
+.atelier-qty-btn:hover {
+	background: var(--atelier-border);
+}
+
+/* 9.4 Dark / Light Mode Header Toggle */
+.atelier-darkmode-toggle {
+	background: transparent;
+	border: 0;
+	color: var(--atelier-contrast);
+	padding: 0.35rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: background-color 0.18s ease;
+}
+
+.atelier-darkmode-toggle:hover {
+	background: var(--atelier-surface);
+}
+
+.atelier-darkmode-toggle .atelier-icon-sun {
+	display: none;
+}
+
+html[data-darkmode="dark"] .atelier-darkmode-toggle .atelier-icon-moon {
+	display: none;
+}
+
+html[data-darkmode="dark"] .atelier-darkmode-toggle .atelier-icon-sun {
+	display: block;
+}
+
+/* 9.5 Top Marquee Announcement Ticker Bar */
+.atelier-topbar-ticker {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+	font-size: 0.8125rem;
+	padding: 0.45rem 1.25rem;
+	border-bottom: 1px solid var(--atelier-border);
+}
+
+.atelier-topbar-ticker__inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.atelier-topbar-ticker__left {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.atelier-topbar-ticker__badge {
+	background: var(--atelier-accent);
+	color: #ffffff;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	padding: 0.15rem 0.5rem;
+	border-radius: 3px;
+	flex-shrink: 0;
+}
+
+.atelier-topbar-ticker__viewport {
+	overflow: hidden;
+	flex: 1;
+	white-space: nowrap;
+}
+
+.atelier-topbar-ticker__track {
+	display: inline-flex;
+	gap: 3rem;
+	animation: atelierMarquee 26s linear infinite;
+}
+
+.atelier-topbar-ticker__track.is-paused {
+	animation-play-state: paused;
+}
+
+.atelier-topbar-ticker__item::after {
+	content: "•";
+	margin-left: 3rem;
+	opacity: 0.45;
+}
+
+@keyframes atelierMarquee {
+	0% { transform: translateX(0); }
+	100% { transform: translateX(-50%); }
+}
+
+.atelier-topbar-ticker__right {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-shrink: 0;
+}
+
+.atelier-topbar-ticker__date {
+	opacity: 0.8;
+	font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+	.atelier-topbar-ticker__date {
+		display: none;
+	}
+}
+
+.atelier-topbar-ticker__pause {
+	background: rgba(255, 255, 255, 0.14);
+	color: inherit;
+	border: 0;
+	width: 24px;
+	height: 24px;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 0.65rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+/* 9.6 Smooth Scroll-to-Top Floating Button */
+.atelier-scroll-top {
+	position: fixed;
+	right: 1.5rem;
+	bottom: 5rem;
+	z-index: 980;
+	width: 42px;
+	height: 42px;
+	border-radius: 50%;
+	background: var(--atelier-accent);
+	color: #ffffff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	box-shadow: var(--atelier-shadow);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(10px);
+	transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease, background-color 0.2s ease;
+}
+
+.atelier-scroll-top.is-visible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.atelier-scroll-top:hover {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+}
+
+/* 9.7 Collapsible Table of Contents (TOC) & Post Quick-Like Button */
+.atelier-toc-wrap {
+	background: var(--atelier-surface);
+	border: 1px solid var(--atelier-border);
+	border-radius: 6px;
+	padding: 1rem 1.25rem;
+	margin: 1.5rem 0 2rem;
+}
+
+.atelier-toc-header {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--atelier-contrast);
+}
+
+.atelier-toc-header::-webkit-details-marker {
+	display: none;
+}
+
+.atelier-toc-header__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.atelier-toc-list {
+	margin: 0.85rem 0 0 1.25rem;
+	padding: 0;
+	font-size: 0.9375rem;
+	line-height: 1.7;
+}
+
+.atelier-toc-subitem {
+	margin-left: 1rem;
+}
+
+.atelier-toc-link {
+	color: var(--atelier-accent);
+	text-decoration: none;
+}
+
+.atelier-toc-link:hover {
+	text-decoration: underline;
+}
+
+.atelier-post-like-wrap {
+	margin-top: 2rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--atelier-border);
+	display: flex;
+	align-items: center;
+}
+
+.atelier-post-like-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.55rem 1.1rem;
+	border: 1px solid var(--atelier-border);
+	border-radius: 999px;
+	background: var(--atelier-base);
+	color: var(--atelier-contrast);
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.atelier-post-like-btn:hover {
+	border-color: var(--atelier-contrast);
+	transform: translateY(-1px);
+}
+
+.atelier-post-like-btn.is-liked {
+	border-color: var(--atelier-sale);
+	color: var(--atelier-sale);
+}
+
+.atelier-post-like-btn.is-liked .atelier-icon-heart {
+	fill: currentColor;
+}
+
+.atelier-post-like-count {
+	background: var(--atelier-surface);
+	padding: 0.1rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+}
+
+/* 9.8 Interactive Cursor Dot Follower */
+.atelier-js-cursor {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 24px;
+	height: 24px;
+	pointer-events: none;
+	z-index: 99999;
+	display: none;
+}
+
+@media (min-width: 992px) {
+	.atelier-js-cursor.is-enabled {
+		display: block;
+	}
+}
+
+.atelier-js-follower {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 1.5px solid var(--atelier-accent);
+	background: rgba(31, 58, 95, 0.12);
+	transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.atelier-js-cursor.is-active .atelier-js-follower {
+	transform: scale(1.65);
+	background: rgba(31, 58, 95, 0.22);
+}

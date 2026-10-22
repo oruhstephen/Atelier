@@ -8,6 +8,14 @@
  * 4. Size & Fit Guide modal
  * 5. Sticky Add-to-Cart scroll observer
  * 6. Debounced Instant Live Product Search
+ * 7. Bloghash Pro Ported Features:
+ *    - Plus / Minus (+/-) Quantity Stepper Buttons
+ *    - Dark / Light Mode Switcher (localStorage + data-darkmode)
+ *    - Sticky Header scroll shadow state
+ *    - Top Marquee Ticker Play/Pause & Live Date
+ *    - Smooth Scroll-to-Top Floating Button
+ *    - Smooth TOC anchor scrolling & Article Quick-Like counter
+ *    - Interactive Desktop Cursor Dot Follower
  */
 (function ($) {
 	'use strict';
@@ -89,17 +97,19 @@
 			nonce: cfg.nonce,
 			product_id: productId,
 			ids: getLocalWishlist(),
-		}).done(function (res) {
-			if (res && res.success && res.data) {
-				const updated = saveLocalWishlist(res.data.wishlistIds || []);
-				syncWishlistUI(updated);
-				if (res.data.html) {
-					$('#atelier-wishlist-drawer-items, #atelier-wishlist-page-container').html(res.data.html);
+		})
+			.done(function (res) {
+				if (res && res.success && res.data) {
+					const updated = saveLocalWishlist(res.data.wishlistIds || []);
+					syncWishlistUI(updated);
+					if (res.data.html) {
+						$('#atelier-wishlist-drawer-items, #atelier-wishlist-page-container').html(res.data.html);
+					}
 				}
-			}
-		}).always(function () {
-			$btn.removeClass('is-loading');
-		});
+			})
+			.always(function () {
+				$btn.removeClass('is-loading');
+			});
 	});
 
 	$(document).on('click', '.atelier-header-wishlist-trigger', function (e) {
@@ -141,7 +151,6 @@
 		}
 	});
 
-	// Keep swatches synced when WooCommerce resets or updates available variations
 	$(document).on('woocommerce_update_variation_values', '.variations_form', function () {
 		$(this)
 			.find('.atelier-swatches-wrap')
@@ -196,6 +205,7 @@
 				if ($variationForm.length && $.fn.wc_variation_form) {
 					$variationForm.wc_variation_form();
 				}
+				initQuantityButtons();
 			}
 		});
 	});
@@ -320,10 +330,200 @@
 		});
 	}
 
+	/* ==========================================================================
+	   7. Bloghash Pro Ported Interactive Features
+	   ========================================================================== */
+
+	// 7.1 Plus / Minus Quantity Stepper Buttons (from BloghashWC.quantButtons)
+	function initQuantityButtons() {
+		if (!cfg.enableQtyButtons) return;
+
+		$('div.quantity:not(.atelier-qty-enhanced), td.quantity:not(.atelier-qty-enhanced)').each(function () {
+			const $wrap = $(this);
+			const $input = $wrap.find('input.qty');
+			if (!$input.length || $input.prop('type') === 'hidden' || $input.prop('type') === 'date') {
+				return;
+			}
+			$wrap.addClass('atelier-qty-enhanced');
+			$input.before('<button type="button" class="atelier-qty-btn atelier-qty-minus" aria-label="Decrease quantity">&minus;</button>');
+			$input.after('<button type="button" class="atelier-qty-btn atelier-qty-plus" aria-label="Increase quantity">&#43;</button>');
+		});
+	}
+
+	$(document).on('click', '.atelier-qty-btn', function (e) {
+		e.preventDefault();
+		const $btn = $(this);
+		const $input = $btn.closest('.quantity').find('input.qty');
+		if (!$input.length) return;
+
+		const current = parseFloat($input.val()) || 0;
+		const min = parseFloat($input.attr('min')) || 0;
+		const max = parseFloat($input.attr('max'));
+		const step = parseFloat($input.attr('step')) || 1;
+
+		let nextVal = current;
+		if ($btn.hasClass('atelier-qty-plus')) {
+			nextVal = current + step;
+			if (!isNaN(max) && max > 0 && nextVal > max) {
+				nextVal = max;
+			}
+		} else {
+			nextVal = Math.max(min, current - step);
+		}
+
+		$input.val(nextVal).trigger('change');
+	});
+
+	$(document).ajaxComplete(function () {
+		initQuantityButtons();
+	});
+
+	// 7.2 Dark / Light Mode Switcher (from bloghash.js)
+	$(document).on('click', '[data-atelier-darkmode-toggle]', function (e) {
+		e.preventDefault();
+		const isDark = document.documentElement.getAttribute('data-darkmode') === 'dark';
+		const nextMode = isDark ? 'light' : 'dark';
+		document.documentElement.setAttribute('data-darkmode', nextMode);
+		try {
+			localStorage.setItem('atelier_darkmode', nextMode);
+		} catch (err) {}
+	});
+
+	// 7.3 Top Announcement Ticker Play/Pause & Live Date
+	function initTopTicker() {
+		const dateEl = document.getElementById('atelier-live-date');
+		if (dateEl) {
+			const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+			dateEl.textContent = new Date().toLocaleDateString(document.documentElement.lang || 'en-GB', opts);
+		}
+
+		$(document).on('click', '[data-atelier-ticker-toggle]', function (e) {
+			e.preventDefault();
+			const $track = $('#atelier-ticker-track');
+			$track.toggleClass('is-paused');
+			const paused = $track.hasClass('is-paused');
+			$(this).find('.atelier-ticker-icon-pause').toggle(!paused);
+			$(this).find('.atelier-ticker-icon-play').toggle(paused);
+		});
+	}
+
+	// 7.4 Sticky Header Shadow & Scroll-to-Top Floating Button
+	function initScrollBehaviors() {
+		const scrollTopBtn = document.getElementById('atelier-scroll-top');
+
+		function onScroll() {
+			const y = window.pageYOffset || document.documentElement.scrollTop;
+			if (cfg.enableStickyHeader) {
+				document.body.classList.toggle('is-header-pinned', y > 24);
+			}
+			if (scrollTopBtn) {
+				scrollTopBtn.classList.toggle('is-visible', y > 450);
+			}
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		onScroll();
+
+		$(document).on('click', '#atelier-scroll-top', function (e) {
+			e.preventDefault();
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		});
+	}
+
+	// 7.5 Smooth TOC Anchor Scroll & Article Quick-Like Counter
+	$(document).on('click', '.atelier-toc-link', function (e) {
+		const href = $(this).attr('href');
+		if (href && href.startsWith('#')) {
+			const target = document.getElementById(href.slice(1));
+			if (target) {
+				e.preventDefault();
+				target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}
+	});
+
+	$(document).on('click', '.atelier-post-like-btn', function (e) {
+		e.preventDefault();
+		const $btn = $(this);
+		const postId = Number($btn.data('post-id'));
+		if (!postId || $btn.prop('disabled')) return;
+
+		const storageKey = 'atelier_liked_post_' + postId;
+		const alreadyLiked = localStorage.getItem(storageKey) === '1';
+
+		$btn.prop('disabled', true);
+		$.post(cfg.ajaxUrl, {
+			action: 'atelier_post_like',
+			nonce: cfg.nonce,
+			post_id: postId,
+			liked: alreadyLiked ? '1' : '0',
+		})
+			.done(function (res) {
+				if (res && res.success && res.data) {
+					$btn.toggleClass('is-liked', !!res.data.liked);
+					$btn.find('.atelier-post-like-count').text(res.data.count);
+					try {
+						if (res.data.liked) {
+							localStorage.setItem(storageKey, '1');
+						} else {
+							localStorage.removeItem(storageKey);
+						}
+					} catch (err) {}
+				}
+			})
+			.always(function () {
+				$btn.prop('disabled', false);
+			});
+	});
+
+	// 7.6 Interactive Desktop Cursor Follower (from bloghash.js Cursor)
+	function initCursorDot() {
+		const cursor = document.getElementById('atelier-js-cursor');
+		if (!cursor || !cfg.enableCursorDot || window.innerWidth < 992) return;
+
+		cursor.classList.add('is-enabled');
+		let clientX = -100;
+		let clientY = -100;
+
+		document.addEventListener(
+			'mousemove',
+			function (e) {
+				clientX = e.clientX;
+				clientY = e.clientY;
+			},
+			{ passive: true }
+		);
+
+		function renderCursor() {
+			cursor.style.transform = 'translate(' + (clientX - 12) + 'px, ' + (clientY - 12) + 'px)';
+			requestAnimationFrame(renderCursor);
+		}
+		requestAnimationFrame(renderCursor);
+
+		$(document).on('mouseenter', 'a, button, input, select, textarea', function () {
+			cursor.classList.add('is-active');
+		});
+		$(document).on('mouseleave', 'a, button, input, select, textarea', function () {
+			cursor.classList.remove('is-active');
+		});
+	}
+
 	$(function () {
 		const initialIds = saveLocalWishlist(getLocalWishlist());
 		syncWishlistUI(initialIds);
 		initStickyCart();
 		initLiveSearch();
+		initQuantityButtons();
+		initTopTicker();
+		initScrollBehaviors();
+		initCursorDot();
+
+		// Restore liked state on blog posts
+		$('.atelier-post-like-btn').each(function () {
+			const pid = $(this).data('post-id');
+			if (pid && localStorage.getItem('atelier_liked_post_' + pid) === '1') {
+				$(this).addClass('is-liked');
+			}
+		});
 	});
 })(jQuery);

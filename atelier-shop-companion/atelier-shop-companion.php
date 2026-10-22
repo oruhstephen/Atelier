@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Atelier Shop Companion
  * Plugin URI:        https://example.com/atelier-shop-companion
- * Description:       Modern, customizable e-commerce features for the Atelier Shop WooCommerce block theme — including Wishlist, Variation Swatches, Quick View, Free Shipping Progress Bar, Product Accordions, Size Guide, Sticky Add-to-Cart, Stock Urgency, and Live AJAX Search.
- * Version:           1.0.0
+ * Description:       Modern, customizable e-commerce & Bloghash Pro features for the Atelier Shop WooCommerce block theme — including Wishlist, Variation Swatches, Quick View, Free Shipping Progress Bar, Image Swap on Hover, Percentage Sale Badges, +/- Quantity Buttons, Dark Mode, Top Marquee Ticker, Scroll-to-Top, TOC, Product Accordions, Size Guide, Sticky Add-to-Cart, Stock Urgency, and Live AJAX Search.
+ * Version:           1.1.0
  * Requires at least: 6.7
  * Requires PHP:      8.0
  * Author:            Atelier Shop
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ATELIER_COMPANION_VERSION', '1.0.0' );
+define( 'ATELIER_COMPANION_VERSION', '1.1.0' );
 define( 'ATELIER_COMPANION_FILE', __FILE__ );
 define( 'ATELIER_COMPANION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'ATELIER_COMPANION_URL', plugin_dir_url( __FILE__ ) );
@@ -86,6 +86,7 @@ final class Atelier_Shop_Companion {
 		require_once ATELIER_COMPANION_PATH . 'includes/class-atelier-shipping-bar.php';
 		require_once ATELIER_COMPANION_PATH . 'includes/class-atelier-product-enhancements.php';
 		require_once ATELIER_COMPANION_PATH . 'includes/class-atelier-live-search.php';
+		require_once ATELIER_COMPANION_PATH . 'includes/class-atelier-bloghash-features.php';
 
 		if ( Atelier_Companion_Settings::get( 'enable_wishlist', true ) ) {
 			Atelier_Companion_Wishlist::init();
@@ -104,6 +105,7 @@ final class Atelier_Shop_Companion {
 		}
 
 		Atelier_Companion_Product_Enhancements::init();
+		Atelier_Companion_Bloghash_Features::init();
 
 		if ( Atelier_Companion_Settings::get( 'enable_live_search', true ) ) {
 			Atelier_Companion_Live_Search::init();
@@ -143,20 +145,25 @@ final class Atelier_Shop_Companion {
 			'atelier-companion',
 			'atelierCompanion',
 			array(
-				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-				'nonce'            => wp_create_nonce( 'atelier_companion_nonce' ),
-				'isLoggedIn'       => is_user_logged_in(),
-				'wishlistIds'      => Atelier_Companion_Settings::get( 'enable_wishlist', true )
+				'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
+				'nonce'              => wp_create_nonce( 'atelier_companion_nonce' ),
+				'isLoggedIn'         => is_user_logged_in(),
+				'wishlistIds'        => Atelier_Companion_Settings::get( 'enable_wishlist', true )
 					? Atelier_Companion_Wishlist::get_user_wishlist()
 					: array(),
-				'cartUrl'          => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
-				'checkoutUrl'      => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
-				'currencySymbol'   => function_exists( 'get_woocommerce_currency_symbol' ) ? html_entity_decode( get_woocommerce_currency_symbol() ) : '£',
-				'freeShippingGoal' => (float) ( $settings['free_shipping_threshold'] ?? 50 ),
-				'swatchShape'      => $settings['swatch_shape'] ?? 'circle',
-				'enableLiveSearch' => ! empty( $settings['enable_live_search'] ),
-				'enableStickyCart' => ! empty( $settings['enable_sticky_cart'] ),
-				'i18n'             => array(
+				'cartUrl'            => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+				'checkoutUrl'        => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
+				'currencySymbol'     => function_exists( 'get_woocommerce_currency_symbol' ) ? html_entity_decode( get_woocommerce_currency_symbol() ) : '£',
+				'freeShippingGoal'   => (float) ( $settings['free_shipping_threshold'] ?? 50 ),
+				'swatchShape'        => $settings['swatch_shape'] ?? 'circle',
+				'enableLiveSearch'   => ! empty( $settings['enable_live_search'] ),
+				'enableStickyCart'   => ! empty( $settings['enable_sticky_cart'] ),
+				'enableQtyButtons'   => ! empty( $settings['enable_qty_buttons'] ),
+				'enableDarkMode'     => ! empty( $settings['enable_dark_mode'] ),
+				'enableStickyHeader' => ! empty( $settings['enable_sticky_header'] ),
+				'enableScrollTop'    => ! empty( $settings['enable_scroll_top'] ),
+				'enableCursorDot'    => ! empty( $settings['enable_cursor_dot'] ),
+				'i18n'               => array(
 					'addedToWishlist'     => __( 'Saved to Wishlist', 'atelier-companion' ),
 					'removedFromWishlist' => __( 'Removed from Wishlist', 'atelier-companion' ),
 					'emptyWishlist'       => __( 'Your wishlist is currently empty.', 'atelier-companion' ),
