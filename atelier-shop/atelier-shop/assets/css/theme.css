@@ -1,0 +1,62 @@
+/* Only what theme.json cannot express. Use CSS variables from theme.json (--wp--preset--*). */
+
+/* Dark Mode Palette Overrides (ported from Bloghash Pro Dark Mode) */
+html[data-darkmode="dark"] body {
+	--wp--preset--color--base: #121316;
+	--wp--preset--color--surface: #1b1d22;
+	--wp--preset--color--contrast: #f3f4f6;
+	--wp--preset--color--muted: #9ca3af;
+	--wp--preset--color--border: #2d3139;
+	--wp--preset--color--accent: #4c82c9;
+	--wp--preset--color--sale: #ef5350;
+	background-color: var(--wp--preset--color--base);
+	color: var(--wp--preset--color--contrast);
+}
+
+/* Sticky Header (ported from Bloghash Pro Sticky Header) */
+body.atelier-sticky-header header.wp-block-template-part {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 0px);
+	z-index: 900;
+	background-color: var(--wp--preset--color--base);
+	transition: box-shadow 0.22s ease, background-color 0.22s ease;
+}
+
+body.atelier-sticky-header.is-header-pinned header.wp-block-template-part {
+	box-shadow: var(--wp--preset--shadow--soft);
+}
+
+/* Featured Category Cards Hover (ported from Bloghash Pro Featured Links) */
+.atelier-featured-card {
+	transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.atelier-featured-card:hover {
+	transform: translateY(-3px);
+	border-color: var(--wp--preset--color--accent) !important;
+	box-shadow: var(--wp--preset--shadow--soft);
+}
+
+.atelier-featured-card h3 a {
+	text-decoration: none;
+	color: var(--wp--preset--color--contrast);
+}
+
+/* Sticky product gallery on desktop */
+@media (min-width: 782px) {
+	.atelier-sticky-gallery {
+		position: sticky;
+		top: var(--wp--preset--spacing--40);
+		align-self: flex-start;
+	}
+}
+
+/* Visible focus ring for accessibility */
+:where(a, button, input, select, textarea):focus-visible {
+	outline: 2px solid var(--wp--preset--color--accent);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

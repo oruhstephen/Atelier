@@ -1,0 +1,37 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+<!-- wp:woocommerce/store-notices /-->
+<!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1280px"}} -->
+<main class="wp-block-group" style="padding-top:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--60)">
+	<!-- wp:woocommerce/breadcrumbs {"align":"wide"} /-->
+	<!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|50"}}}} -->
+	<div class="wp-block-columns alignwide">
+		<!-- wp:column {"width":"58%","className":"atelier-sticky-gallery"} -->
+		<div class="wp-block-column atelier-sticky-gallery" style="flex-basis:58%">
+			<!-- wp:woocommerce/product-image-gallery /-->
+		</div>
+		<!-- /wp:column -->
+		<!-- wp:column {"width":"42%"} -->
+		<div class="wp-block-column" style="flex-basis:42%">
+			<!-- wp:post-title {"textAlign":"left","level":1,"fontSize":"x-large","__woocommerceNamespace":"woocommerce/product-query/product-title"} /-->
+			<!-- wp:woocommerce/product-rating {"isDescendentOfSingleProductTemplate":true} /-->
+			<!-- wp:woocommerce/product-price {"isDescendentOfSingleProductTemplate":true} /-->
+			<!-- wp:post-excerpt {"__woocommerceNamespace":"woocommerce/product-query/product-summary"} /-->
+			<!-- wp:woocommerce/add-to-cart-form /-->
+			<!-- wp:woocommerce/product-meta -->
+			<div class="wp-block-woocommerce-product-meta">
+				<!-- wp:post-terms {"term":"product_cat","prefix":"Category: "} /-->
+				<!-- wp:post-terms {"term":"product_tag","prefix":"Tags: "} /-->
+			</div>
+			<!-- /wp:woocommerce/product-meta -->
+		</div>
+		<!-- /wp:column -->
+	</div>
+	<!-- /wp:columns -->
+	<!-- TODO(agent): replace product-details tabs with accordions (Product information, Specifications, Delivery & returns, Reviews). -->
+	<!-- wp:woocommerce/product-details {"align":"wide"} /-->
+	<!-- wp:woocommerce/related-products {"align":"wide"} -->
+	<div class="wp-block-woocommerce-related-products alignwide"></div>
+	<!-- /wp:woocommerce/related-products -->
+</main>
+<!-- /wp:group -->
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

@@ -1,0 +1,1285 @@
+/**
+ * Atelier Shop Companion — Frontend Styles
+ * Uses Atelier Shop theme.json CSS custom properties with graceful fallbacks.
+ */
+
+:root {
+	--atelier-base: var(--wp--preset--color--base, #ffffff);
+	--atelier-surface: var(--wp--preset--color--surface, #f6f5f3);
+	--atelier-contrast: var(--wp--preset--color--contrast, #1c1c1c);
+	--atelier-muted: var(--wp--preset--color--muted, #5f5f5f);
+	--atelier-border: var(--wp--preset--color--border, #e3e1dd);
+	--atelier-accent: var(--wp--preset--color--accent, #1f3a5f);
+	--atelier-sale: var(--wp--preset--color--sale, #b3261e);
+	--atelier-shadow: var(--wp--preset--shadow--soft, 0 2px 12px rgba(0, 0, 0, 0.08));
+}
+
+/* ==========================================================================
+   1. Product Card Overlay Actions (Wishlist & Quick View)
+   ========================================================================== */
+.atelier-product-card-media-wrap {
+	position: relative;
+	display: block;
+	overflow: hidden;
+}
+
+.atelier-card-actions {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.atelier-wishlist-btn--loop,
+.atelier-quick-view-btn {
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	border: 1px solid var(--atelier-border);
+	background: var(--atelier-base);
+	color: var(--atelier-contrast);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	padding: 0;
+	box-shadow: var(--atelier-shadow);
+	transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.atelier-wishlist-btn--loop:hover,
+.atelier-quick-view-btn:hover {
+	transform: translateY(-1px);
+	border-color: var(--atelier-contrast);
+}
+
+.atelier-wishlist-btn.is-active {
+	color: var(--atelier-sale);
+	border-color: var(--atelier-sale);
+}
+
+.atelier-wishlist-btn.is-active .atelier-icon-heart {
+	fill: currentColor;
+}
+
+.atelier-quick-view-btn__label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+/* Single Product Wishlist Button */
+.atelier-wishlist-btn--single {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+	padding: 0.7rem 1.25rem;
+	background: transparent;
+	color: var(--atelier-contrast);
+	border: 1px solid var(--atelier-border);
+	border-radius: 4px;
+	font-size: var(--wp--preset--font-size--small, 0.875rem);
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.atelier-wishlist-btn--single:hover {
+	border-color: var(--atelier-contrast);
+	background: var(--atelier-surface);
+}
+
+/* Header Wishlist Icon & Badge */
+.atelier-header-wishlist-trigger {
+	position: relative;
+	background: transparent;
+	border: 0;
+	color: var(--atelier-contrast);
+	padding: 0.35rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.atelier-wishlist-count {
+	position: absolute;
+	top: -2px;
+	right: -4px;
+	min-width: 17px;
+	height: 17px;
+	padding: 0 4px;
+	border-radius: 999px;
+	background: var(--atelier-accent);
+	color: var(--atelier-base);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	line-height: 17px;
+	text-align: center;
+	display: none;
+}
+
+.atelier-wishlist-count.is-visible {
+	display: inline-block;
+}
+
+/* ==========================================================================
+   2. Slide-Out Wishlist Drawer & Wishlist Page
+   ========================================================================== */
+.atelier-drawer {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.atelier-drawer.is-open {
+	pointer-events: auto;
+	visibility: visible;
+}
+
+.atelier-drawer__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(28, 28, 28, 0.45);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+}
+
+.atelier-drawer.is-open .atelier-drawer__backdrop {
+	opacity: 1;
+}
+
+.atelier-drawer__panel {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: min(420px, 92vw);
+	background: var(--atelier-base);
+	box-shadow: -4px 0 24px rgba(0, 0, 0, 0.14);
+	display: flex;
+	flex-direction: column;
+	transform: translateX(100%);
+	transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.atelier-drawer.is-open .atelier-drawer__panel {
+	transform: translateX(0);
+}
+
+.atelier-drawer__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1.25rem 1.5rem;
+	border-bottom: 1px solid var(--atelier-border);
+}
+
+.atelier-drawer__title {
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.atelier-drawer__count {
+	font-size: 0.8125rem;
+	background: var(--atelier-surface);
+	color: var(--atelier-muted);
+	padding: 0.1rem 0.55rem;
+	border-radius: 999px;
+}
+
+.atelier-drawer__close {
+	background: transparent;
+	border: 0;
+	font-size: 1.6rem;
+	line-height: 1;
+	color: var(--atelier-muted);
+	cursor: pointer;
+	padding: 0.25rem;
+}
+
+.atelier-drawer__body {
+	padding: 1.25rem 1.5rem;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.atelier-wishlist-items {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.atelier-wishlist-page .atelier-wishlist-items {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1.5rem;
+}
+
+.atelier-wishlist-item {
+	display: flex;
+	gap: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--atelier-border);
+	align-items: center;
+}
+
+.atelier-wishlist-item__thumb img {
+	width: 76px;
+	height: 92px;
+	object-fit: cover;
+	border-radius: 4px;
+	display: block;
+	background: var(--atelier-surface);
+}
+
+.atelier-wishlist-item__details {
+	flex: 1;
+	min-width: 0;
+}
+
+.atelier-wishlist-item__title {
+	margin: 0 0 0.25rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+
+.atelier-wishlist-item__title a {
+	color: var(--atelier-contrast);
+	text-decoration: none;
+}
+
+.atelier-wishlist-item__price {
+	font-size: 0.875rem;
+	color: var(--atelier-muted);
+	margin-bottom: 0.5rem;
+}
+
+.atelier-wishlist-item__actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.atelier-btn-sm {
+	padding: 0.4rem 0.85rem !important;
+	font-size: 0.8125rem !important;
+	border-radius: 4px;
+	text-decoration: none;
+}
+
+.atelier-wishlist-remove {
+	background: none;
+	border: 0;
+	color: var(--atelier-muted);
+	font-size: 0.8125rem;
+	text-decoration: underline;
+	cursor: pointer;
+	padding: 0;
+}
+
+.atelier-wishlist-remove:hover {
+	color: var(--atelier-sale);
+}
+
+/* ==========================================================================
+   3. Variation Color, Image & Label Swatches
+   ========================================================================== */
+.atelier-swatches-wrap select {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	border: 0 !important;
+}
+
+.atelier-swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.35rem;
+}
+
+.atelier-swatch {
+	position: relative;
+	border: 1px solid var(--atelier-border);
+	background-color: var(--atelier-base);
+	color: var(--atelier-contrast);
+	cursor: pointer;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.atelier-swatches--circle .atelier-swatch--color,
+.atelier-swatches--circle .atelier-swatch--image {
+	border-radius: 50%;
+}
+
+.atelier-swatches--rounded .atelier-swatch {
+	border-radius: 4px;
+}
+
+.atelier-swatches--square .atelier-swatch {
+	border-radius: 0;
+}
+
+.atelier-swatch--image {
+	background-size: cover;
+	background-position: center;
+}
+
+.atelier-swatch--label {
+	min-width: 40px;
+	height: 36px;
+	padding: 0 0.75rem;
+	border-radius: 4px;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.atelier-swatch:hover:not(.is-disabled) {
+	border-color: var(--atelier-contrast);
+}
+
+.atelier-swatch.is-selected {
+	border-color: var(--atelier-accent);
+	box-shadow: 0 0 0 2px var(--atelier-base), 0 0 0 4px var(--atelier-accent);
+}
+
+.atelier-swatch--label.is-selected {
+	background-color: var(--atelier-accent);
+	color: var(--atelier-base);
+	box-shadow: none;
+}
+
+.atelier-swatch.is-disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+	text-decoration: line-through;
+}
+
+/* ==========================================================================
+   4. Quick View & Size Guide Modals
+   ========================================================================== */
+.atelier-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.25rem;
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.atelier-modal.is-open {
+	pointer-events: auto;
+	visibility: visible;
+}
+
+.atelier-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(28, 28, 28, 0.5);
+	opacity: 0;
+	transition: opacity 0.22s ease;
+}
+
+.atelier-modal.is-open .atelier-modal__backdrop {
+	opacity: 1;
+}
+
+.atelier-modal__dialog {
+	position: relative;
+	z-index: 2;
+	width: min(880px, 95vw);
+	max-height: 90vh;
+	overflow-y: auto;
+	background: var(--atelier-base);
+	border-radius: 6px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+	padding: 2rem;
+	transform: translateY(12px) scale(0.98);
+	opacity: 0;
+	transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.atelier-modal__dialog--narrow {
+	width: min(620px, 95vw);
+}
+
+.atelier-modal.is-open .atelier-modal__dialog {
+	transform: translateY(0) scale(1);
+	opacity: 1;
+}
+
+.atelier-modal__close {
+	position: absolute;
+	top: 1rem;
+	right: 1.25rem;
+	background: transparent;
+	border: 0;
+	font-size: 1.75rem;
+	line-height: 1;
+	color: var(--atelier-muted);
+	cursor: pointer;
+}
+
+.atelier-qv-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+	align-items: start;
+}
+
+@media (max-width: 720px) {
+	.atelier-qv-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.atelier-qv-main-img img {
+	width: 100%;
+	height: auto;
+	border-radius: 4px;
+	display: block;
+	background: var(--atelier-surface);
+}
+
+.atelier-qv-thumbs {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.atelier-qv-thumb {
+	width: 60px;
+	height: 60px;
+	padding: 0;
+	border: 1px solid var(--atelier-border);
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: pointer;
+	background: none;
+}
+
+.atelier-qv-thumb.is-active {
+	border-color: var(--atelier-accent);
+	box-shadow: 0 0 0 1px var(--atelier-accent);
+}
+
+.atelier-qv-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.atelier-qv-title {
+	margin: 0.25rem 0 0.5rem;
+	font-size: 1.5rem;
+}
+
+.atelier-qv-title a {
+	color: var(--atelier-contrast);
+	text-decoration: none;
+}
+
+.atelier-qv-price {
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+}
+
+.atelier-qv-excerpt {
+	color: var(--atelier-muted);
+	font-size: 0.9375rem;
+	margin-bottom: 1.25rem;
+}
+
+.atelier-qv-footer {
+	margin-top: 1.25rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--atelier-border);
+}
+
+.atelier-qv-full-link {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--atelier-accent);
+	text-decoration: none;
+}
+
+.atelier-badge--sale {
+	display: inline-block;
+	background: var(--atelier-sale);
+	color: var(--atelier-base);
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.15rem 0.55rem;
+	border-radius: 3px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   5. Free Shipping Progress Bar
+   ========================================================================== */
+.atelier-shipping-bar {
+	background: var(--atelier-surface);
+	border: 1px solid var(--atelier-border);
+	border-radius: 4px;
+	padding: 0.875rem 1.125rem;
+	margin-bottom: 1.5rem;
+}
+
+.atelier-shipping-bar__header {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	margin-bottom: 0.5rem;
+}
+
+.atelier-shipping-bar__icon {
+	color: var(--atelier-accent);
+	flex-shrink: 0;
+}
+
+.atelier-shipping-bar__text {
+	margin: 0;
+	font-size: 0.875rem;
+	color: var(--atelier-contrast);
+}
+
+.atelier-shipping-bar__track {
+	height: 6px;
+	background: var(--atelier-border);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.atelier-shipping-bar__fill {
+	height: 100%;
+	background: var(--atelier-accent);
+	border-radius: 999px;
+	transition: width 0.35s ease;
+}
+
+.atelier-shipping-bar.is-unlocked .atelier-shipping-bar__fill {
+	background: #2e6f40;
+}
+
+/* ==========================================================================
+   6. Single Product Accordions, Size Guide, Stock Urgency & Reassurance
+   ========================================================================== */
+.atelier-accordions {
+	margin-top: var(--wp--preset--spacing--50, 2.5rem);
+	margin-bottom: var(--wp--preset--spacing--50, 2.5rem);
+	border-top: 1px solid var(--atelier-border);
+}
+
+.atelier-accordion {
+	border-bottom: 1px solid var(--atelier-border);
+}
+
+.atelier-accordion__summary {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1.15rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--atelier-contrast);
+	cursor: pointer;
+}
+
+.atelier-accordion__summary::-webkit-details-marker {
+	display: none;
+}
+
+.atelier-accordion__icon {
+	position: relative;
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
+.atelier-accordion__icon::before,
+.atelier-accordion__icon::after {
+	content: "";
+	position: absolute;
+	background: var(--atelier-contrast);
+	transition: transform 0.2s ease;
+}
+
+.atelier-accordion__icon::before {
+	top: 6px;
+	left: 0;
+	width: 14px;
+	height: 1.5px;
+}
+
+.atelier-accordion__icon::after {
+	top: 0;
+	left: 6px;
+	width: 1.5px;
+	height: 14px;
+}
+
+.atelier-accordion[open] .atelier-accordion__icon::after {
+	transform: rotate(90deg);
+}
+
+.atelier-accordion__content {
+	padding-bottom: 1.25rem;
+	color: var(--atelier-muted);
+	font-size: 0.9375rem;
+	line-height: 1.65;
+}
+
+/* Size Guide Button & Table */
+.atelier-size-guide-row {
+	margin-bottom: 0.85rem;
+}
+
+.atelier-size-guide-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	background: none;
+	border: 0;
+	padding: 0;
+	color: var(--atelier-accent);
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.atelier-size-table-wrap {
+	overflow-x: auto;
+	margin-top: 1rem;
+}
+
+.atelier-size-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+}
+
+.atelier-size-table th,
+.atelier-size-table td {
+	padding: 0.65rem 0.85rem;
+	border: 1px solid var(--atelier-border);
+	text-align: left;
+}
+
+.atelier-size-table th {
+	background: var(--atelier-surface);
+	font-weight: 600;
+}
+
+/* Low Stock Urgency */
+.atelier-stock-urgency {
+	margin: 0.75rem 0 1rem;
+	padding: 0.75rem 1rem;
+	background: var(--atelier-surface);
+	border-radius: 4px;
+	border-left: 3px solid var(--atelier-sale);
+}
+
+.atelier-stock-urgency__text {
+	margin: 0 0 0.45rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--atelier-contrast);
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+.atelier-stock-urgency__dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--atelier-sale);
+	display: inline-block;
+}
+
+.atelier-stock-urgency__bar {
+	height: 4px;
+	background: var(--atelier-border);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.atelier-stock-urgency__fill {
+	height: 100%;
+	background: var(--atelier-sale);
+}
+
+/* Delivery & Trust Reassurance */
+.atelier-product-reassurance {
+	margin-top: 1.25rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--atelier-border);
+	font-size: 0.85rem;
+	color: var(--atelier-muted);
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.atelier-reassurance-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--atelier-contrast);
+}
+
+/* ==========================================================================
+   7. Sticky Add-to-Cart Bar
+   ========================================================================== */
+.atelier-sticky-cart {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 990;
+	background: var(--atelier-base);
+	border-top: 1px solid var(--atelier-border);
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+	padding: 0.75rem 1.5rem;
+	transform: translateY(100%);
+	transition: transform 0.25s ease;
+}
+
+.atelier-sticky-cart.is-visible {
+	transform: translateY(0);
+}
+
+.atelier-sticky-cart__inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.atelier-sticky-cart__product {
+	display: flex;
+	align-items: center;
+	gap: 0.85rem;
+}
+
+.atelier-sticky-cart__thumb img {
+	width: 44px;
+	height: 44px;
+	object-fit: cover;
+	border-radius: 4px;
+	display: block;
+}
+
+.atelier-sticky-cart__info {
+	display: flex;
+	flex-direction: column;
+}
+
+.atelier-sticky-cart__title {
+	font-size: 0.9375rem;
+	color: var(--atelier-contrast);
+}
+
+.atelier-sticky-cart__price {
+	font-size: 0.85rem;
+	color: var(--atelier-muted);
+}
+
+/* ==========================================================================
+   8. Instant AJAX Live Search Dropdown
+   ========================================================================== */
+.wp-block-search {
+	position: relative;
+}
+
+.atelier-live-search-results {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	width: min(360px, 90vw);
+	background: var(--atelier-base);
+	border: 1px solid var(--atelier-border);
+	border-radius: 6px;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+	z-index: 1000;
+	max-height: 420px;
+	overflow-y: auto;
+	display: none;
+}
+
+.atelier-live-search-results.is-open {
+	display: block;
+}
+
+.atelier-live-search-item {
+	display: flex;
+	align-items: center;
+	gap: 0.85rem;
+	padding: 0.75rem 1rem;
+	text-decoration: none;
+	color: var(--atelier-contrast);
+	border-bottom: 1px solid var(--atelier-border);
+	transition: background-color 0.15s ease;
+}
+
+.atelier-live-search-item:last-child {
+	border-bottom: 0;
+}
+
+.atelier-live-search-item:hover {
+	background-color: var(--atelier-surface);
+}
+
+.atelier-live-search-item img {
+	width: 48px;
+	height: 56px;
+	object-fit: cover;
+	border-radius: 3px;
+	flex-shrink: 0;
+}
+
+.atelier-live-search-item__title {
+	font-size: 0.875rem;
+	font-weight: 600;
+	display: block;
+}
+
+.atelier-live-search-item__price {
+	font-size: 0.8125rem;
+	color: var(--atelier-muted);
+}
+
+.atelier-live-search-empty {
+	padding: 1rem;
+	font-size: 0.875rem;
+	color: var(--atelier-muted);
+	text-align: center;
+}
+
+
+/* ==========================================================================
+   9. Bloghash Pro Ported Features (Image Swap, Badges, +/- Qty, Dark Mode,
+      Top Marquee Ticker, Scroll-to-Top, TOC, Quick Likes, Cursor Dot)
+   ========================================================================== */
+
+/* 9.1 Product Image Swap on Hover */
+.atelier-swap-on-hover {
+	position: relative;
+	overflow: hidden;
+	display: block;
+}
+
+.atelier-show-on-hover {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 0.32s ease, transform 0.45s ease;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.atelier-swap-on-hover:hover .atelier-show-on-hover,
+.atelier-product-card-media-wrap:hover .atelier-show-on-hover,
+li.product:hover .atelier-show-on-hover {
+	opacity: 1;
+	transform: scale(1.02);
+}
+
+/* 9.2 Sold Out & Percentage Sale Badges */
+.atelier-sold-out-badge,
+.atelier-pct-badge {
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 4;
+	display: inline-block;
+	padding: 0.25rem 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1.2;
+	border-radius: 3px;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.atelier-pct-badge {
+	background: var(--atelier-sale);
+	color: var(--atelier-base);
+}
+
+.atelier-sold-out-badge {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+}
+
+/* 9.3 Plus / Minus Quantity Stepper Buttons */
+.quantity.atelier-qty-enhanced {
+	display: inline-flex !important;
+	align-items: center;
+	border: 1px solid var(--atelier-border);
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--atelier-base);
+}
+
+.quantity.atelier-qty-enhanced .qty {
+	border: 0 !important;
+	width: 3rem !important;
+	text-align: center;
+	padding: 0.5rem 0.25rem !important;
+	margin: 0 !important;
+	background: transparent;
+	color: var(--atelier-contrast);
+	-moz-appearance: textfield;
+}
+
+.quantity.atelier-qty-enhanced .qty::-webkit-outer-spin-button,
+.quantity.atelier-qty-enhanced .qty::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.atelier-qty-btn {
+	width: 34px;
+	height: 38px;
+	border: 0;
+	background: var(--atelier-surface);
+	color: var(--atelier-contrast);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease;
+	padding: 0;
+}
+
+.atelier-qty-btn:hover {
+	background: var(--atelier-border);
+}
+
+/* 9.4 Dark / Light Mode Header Toggle */
+.atelier-darkmode-toggle {
+	background: transparent;
+	border: 0;
+	color: var(--atelier-contrast);
+	padding: 0.35rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: background-color 0.18s ease;
+}
+
+.atelier-darkmode-toggle:hover {
+	background: var(--atelier-surface);
+}
+
+.atelier-darkmode-toggle .atelier-icon-sun {
+	display: none;
+}
+
+html[data-darkmode="dark"] .atelier-darkmode-toggle .atelier-icon-moon {
+	display: none;
+}
+
+html[data-darkmode="dark"] .atelier-darkmode-toggle .atelier-icon-sun {
+	display: block;
+}
+
+/* 9.5 Top Marquee Announcement Ticker Bar */
+.atelier-topbar-ticker {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+	font-size: 0.8125rem;
+	padding: 0.45rem 1.25rem;
+	border-bottom: 1px solid var(--atelier-border);
+}
+
+.atelier-topbar-ticker__inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.atelier-topbar-ticker__left {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.atelier-topbar-ticker__badge {
+	background: var(--atelier-accent);
+	color: #ffffff;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	padding: 0.15rem 0.5rem;
+	border-radius: 3px;
+	flex-shrink: 0;
+}
+
+.atelier-topbar-ticker__viewport {
+	overflow: hidden;
+	flex: 1;
+	white-space: nowrap;
+}
+
+.atelier-topbar-ticker__track {
+	display: inline-flex;
+	gap: 3rem;
+	animation: atelierMarquee 26s linear infinite;
+}
+
+.atelier-topbar-ticker__track.is-paused {
+	animation-play-state: paused;
+}
+
+.atelier-topbar-ticker__item::after {
+	content: "•";
+	margin-left: 3rem;
+	opacity: 0.45;
+}
+
+@keyframes atelierMarquee {
+	0% { transform: translateX(0); }
+	100% { transform: translateX(-50%); }
+}
+
+.atelier-topbar-ticker__right {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-shrink: 0;
+}
+
+.atelier-topbar-ticker__date {
+	opacity: 0.8;
+	font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+	.atelier-topbar-ticker__date {
+		display: none;
+	}
+}
+
+.atelier-topbar-ticker__pause {
+	background: rgba(255, 255, 255, 0.14);
+	color: inherit;
+	border: 0;
+	width: 24px;
+	height: 24px;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 0.65rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+/* 9.6 Smooth Scroll-to-Top Floating Button */
+.atelier-scroll-top {
+	position: fixed;
+	right: 1.5rem;
+	bottom: 5rem;
+	z-index: 980;
+	width: 42px;
+	height: 42px;
+	border-radius: 50%;
+	background: var(--atelier-accent);
+	color: #ffffff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	box-shadow: var(--atelier-shadow);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(10px);
+	transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease, background-color 0.2s ease;
+}
+
+.atelier-scroll-top.is-visible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.atelier-scroll-top:hover {
+	background: var(--atelier-contrast);
+	color: var(--atelier-base);
+}
+
+/* 9.7 Collapsible Table of Contents (TOC) & Post Quick-Like Button */
+.atelier-toc-wrap {
+	background: var(--atelier-surface);
+	border: 1px solid var(--atelier-border);
+	border-radius: 6px;
+	padding: 1rem 1.25rem;
+	margin: 1.5rem 0 2rem;
+}
+
+.atelier-toc-header {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--atelier-contrast);
+}
+
+.atelier-toc-header::-webkit-details-marker {
+	display: none;
+}
+
+.atelier-toc-header__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.atelier-toc-list {
+	margin: 0.85rem 0 0 1.25rem;
+	padding: 0;
+	font-size: 0.9375rem;
+	line-height: 1.7;
+}
+
+.atelier-toc-subitem {
+	margin-left: 1rem;
+}
+
+.atelier-toc-link {
+	color: var(--atelier-accent);
+	text-decoration: none;
+}
+
+.atelier-toc-link:hover {
+	text-decoration: underline;
+}
+
+.atelier-post-like-wrap {
+	margin-top: 2rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--atelier-border);
+	display: flex;
+	align-items: center;
+}
+
+.atelier-post-like-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.55rem 1.1rem;
+	border: 1px solid var(--atelier-border);
+	border-radius: 999px;
+	background: var(--atelier-base);
+	color: var(--atelier-contrast);
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.atelier-post-like-btn:hover {
+	border-color: var(--atelier-contrast);
+	transform: translateY(-1px);
+}
+
+.atelier-post-like-btn.is-liked {
+	border-color: var(--atelier-sale);
+	color: var(--atelier-sale);
+}
+
+.atelier-post-like-btn.is-liked .atelier-icon-heart {
+	fill: currentColor;
+}
+
+.atelier-post-like-count {
+	background: var(--atelier-surface);
+	padding: 0.1rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+}
+
+/* 9.8 Interactive Cursor Dot Follower */
+.atelier-js-cursor {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 24px;
+	height: 24px;
+	pointer-events: none;
+	z-index: 99999;
+	display: none;
+}
+
+@media (min-width: 992px) {
+	.atelier-js-cursor.is-enabled {
+		display: block;
+	}
+}
+
+.atelier-js-follower {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 1.5px solid var(--atelier-accent);
+	background: rgba(31, 58, 95, 0.12);
+	transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.atelier-js-cursor.is-active .atelier-js-follower {
+	transform: scale(1.65);
+	background: rgba(31, 58, 95, 0.22);
+}

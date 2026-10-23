@@ -2,9 +2,10 @@
 /**
  * Atelier Companion Settings & Customization Center.
  *
- * Provides a clean, modular settings screen under WooCommerce > Atelier Companion
- * (or Settings > Atelier Companion) to toggle and customize every e-commerce
- * and Bloghash Pro feature.
+ * Provides:
+ * 1. The WordPress Customizer Pane (Appearance → Customize → Atelier Shop Options)
+ * 2. A clean admin settings screen under WooCommerce → Atelier Companion
+ * Both interfaces share the exact same `atelier_companion_settings` option store.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,11 +17,12 @@ class Atelier_Companion_Settings {
 	public const OPTION_KEY = 'atelier_companion_settings';
 
 	/**
-	 * Initialize settings hooks.
+	 * Initialize settings & Customizer hooks.
 	 */
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 60 );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'customize_register', array( __CLASS__, 'register_customizer_sections' ), 30 );
 		add_filter( 'plugin_action_links_' . plugin_basename( ATELIER_COMPANION_FILE ), array( __CLASS__, 'add_settings_link' ) );
 	}
 
@@ -83,6 +85,179 @@ class Atelier_Companion_Settings {
 	}
 
 	/**
+	 * Register sections & controls inside the WordPress Customizer (Appearance → Customize).
+	 *
+	 * @param WP_Customize_Manager $wp_customize Customizer manager instance.
+	 */
+	public static function register_customizer_sections( WP_Customize_Manager $wp_customize ): void {
+		$defaults = self::defaults();
+		$opt      = self::OPTION_KEY;
+
+		// Ensure parent panel exists even if another theme is active.
+		if ( ! $wp_customize->get_panel( 'atelier_shop_panel' ) ) {
+			$wp_customize->add_panel( 'atelier_shop_panel', array(
+				'title'       => __( 'Atelier Shop Options', 'atelier-companion' ),
+				'description' => __( 'Customize Atelier Shop colors, layout, header, and e-commerce features.', 'atelier-companion' ),
+				'priority'    => 25,
+			) );
+		}
+
+		// Section 1: Header, Ticker & UI (Bloghash Pro)
+		$wp_customize->add_section( 'atelier_customizer_header_ui', array(
+			'title'    => __( 'Header, Ticker & UI (Bloghash Pro)', 'atelier-companion' ),
+			'panel'    => 'atelier_shop_panel',
+			'priority' => 30,
+		) );
+
+		$header_ui_toggles = array(
+			'enable_dark_mode'     => __( 'Enable Dark / Light Mode Header Toggle', 'atelier-companion' ),
+			'enable_sticky_header' => __( 'Enable Sticky Header on Scroll', 'atelier-companion' ),
+			'enable_top_ticker'    => __( 'Enable Top Marquee Announcement Ticker Bar', 'atelier-companion' ),
+			'enable_scroll_top'    => __( 'Enable Floating Scroll-to-Top Button', 'atelier-companion' ),
+			'enable_live_search'   => __( 'Enable Instant AJAX Live Product Search', 'atelier-companion' ),
+			'enable_cursor_dot'    => __( 'Enable Desktop Cursor Dot Follower', 'atelier-companion' ),
+		);
+
+		foreach ( $header_ui_toggles as $key => $label ) {
+			$setting_id = "{$opt}[{$key}]";
+			$wp_customize->add_setting( $setting_id, array(
+				'type'              => 'option',
+				'default'           => $defaults[ $key ],
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'transport'         => 'refresh',
+			) );
+			$wp_customize->add_control( $setting_id, array(
+				'label'   => $label,
+				'section' => 'atelier_customizer_header_ui',
+				'type'    => 'checkbox',
+			) );
+		}
+
+		$wp_customize->add_setting( "{$opt}[ticker_label]", array(
+			'type'              => 'option',
+			'default'           => $defaults['ticker_label'],
+			'sanitize_callback' => 'sanitize_text_field',
+		) );
+		$wp_customize->add_control( "{$opt}[ticker_label]", array(
+			'label'   => __( 'Top Ticker Badge Label', 'atelier-companion' ),
+			'section' => 'atelier_customizer_header_ui',
+			'type'    => 'text',
+		) );
+
+		$wp_customize->add_setting( "{$opt}[ticker_items_text]", array(
+			'type'              => 'option',
+			'default'           => $defaults['ticker_items_text'],
+			'sanitize_callback' => 'sanitize_textarea_field',
+		) );
+		$wp_customize->add_control( "{$opt}[ticker_items_text]", array(
+			'label'       => __( 'Top Ticker Announcements (1 per line)', 'atelier-companion' ),
+			'section'     => 'atelier_customizer_header_ui',
+			'type'        => 'textarea',
+		) );
+
+		// Section 2: WooCommerce & Shop Features
+		$wp_customize->add_section( 'atelier_customizer_shop', array(
+			'title'    => __( 'WooCommerce & Shop Features', 'atelier-companion' ),
+			'panel'    => 'atelier_shop_panel',
+			'priority' => 40,
+		) );
+
+		$shop_toggles = array(
+			'enable_wishlist'              => __( 'Enable Wishlist & Saved Items Drawer', 'atelier-companion' ),
+			'enable_swatches'              => __( 'Enable Variation Color & Image Swatches', 'atelier-companion' ),
+			'enable_quick_view'            => __( 'Enable Product Quick View Modal', 'atelier-companion' ),
+			'enable_image_swap'            => __( 'Enable Product Image Swap on Hover', 'atelier-companion' ),
+			'enable_percentage_sale_badge' => __( 'Enable Percentage Sale (-25%) & Sold Out Badges', 'atelier-companion' ),
+			'enable_qty_buttons'           => __( 'Enable Plus / Minus (+/-) Quantity Buttons', 'atelier-companion' ),
+			'enable_shipping_bar'          => __( 'Enable Free Shipping Progress Bar', 'atelier-companion' ),
+			'enable_product_accordions'    => __( 'Enable Single Product Accordions', 'atelier-companion' ),
+			'enable_sticky_cart'           => __( 'Enable Sticky Bottom Add-to-Cart Bar', 'atelier-companion' ),
+			'enable_size_guide'            => __( 'Enable Interactive Size & Fit Guide Modal', 'atelier-companion' ),
+			'enable_stock_urgency'         => __( 'Enable Low-Stock Urgency Indicator', 'atelier-companion' ),
+			'enable_trust_badges'          => __( 'Enable Estimated Delivery & Trust Badges', 'atelier-companion' ),
+		);
+
+		foreach ( $shop_toggles as $key => $label ) {
+			$setting_id = "{$opt}[{$key}]";
+			$wp_customize->add_setting( $setting_id, array(
+				'type'              => 'option',
+				'default'           => $defaults[ $key ],
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'transport'         => 'refresh',
+			) );
+			$wp_customize->add_control( $setting_id, array(
+				'label'   => $label,
+				'section' => 'atelier_customizer_shop',
+				'type'    => 'checkbox',
+			) );
+		}
+
+		$wp_customize->add_setting( "{$opt}[swatch_shape]", array(
+			'type'              => 'option',
+			'default'           => $defaults['swatch_shape'],
+			'sanitize_callback' => 'sanitize_text_field',
+		) );
+		$wp_customize->add_control( "{$opt}[swatch_shape]", array(
+			'label'   => __( 'Swatch Shape', 'atelier-companion' ),
+			'section' => 'atelier_customizer_shop',
+			'type'    => 'select',
+			'choices' => array(
+				'circle'  => __( 'Circle', 'atelier-companion' ),
+				'rounded' => __( 'Rounded Square', 'atelier-companion' ),
+				'square'  => __( 'Sharp Square', 'atelier-companion' ),
+			),
+		) );
+
+		$wp_customize->add_setting( "{$opt}[free_shipping_threshold]", array(
+			'type'              => 'option',
+			'default'           => $defaults['free_shipping_threshold'],
+			'sanitize_callback' => 'floatval',
+		) );
+		$wp_customize->add_control( "{$opt}[free_shipping_threshold]", array(
+			'label'   => __( 'Free Shipping Goal Amount', 'atelier-companion' ),
+			'section' => 'atelier_customizer_shop',
+			'type'    => 'number',
+		) );
+
+		$wp_customize->add_setting( "{$opt}[estimated_delivery_days]", array(
+			'type'              => 'option',
+			'default'           => $defaults['estimated_delivery_days'],
+			'sanitize_callback' => 'sanitize_text_field',
+		) );
+		$wp_customize->add_control( "{$opt}[estimated_delivery_days]", array(
+			'label'   => __( 'Estimated Delivery Window', 'atelier-companion' ),
+			'section' => 'atelier_customizer_shop',
+			'type'    => 'text',
+		) );
+
+		// Section 3: Blog & Editorial Features
+		$wp_customize->add_section( 'atelier_customizer_editorial', array(
+			'title'    => __( 'Blog & Editorial (Bloghash Pro)', 'atelier-companion' ),
+			'panel'    => 'atelier_shop_panel',
+			'priority' => 50,
+		) );
+
+		$editorial_toggles = array(
+			'enable_toc'        => __( 'Auto Table of Contents on Blog Posts', 'atelier-companion' ),
+			'enable_post_likes' => __( 'Enable Article Quick-Like Heart Button', 'atelier-companion' ),
+		);
+
+		foreach ( $editorial_toggles as $key => $label ) {
+			$setting_id = "{$opt}[{$key}]";
+			$wp_customize->add_setting( $setting_id, array(
+				'type'              => 'option',
+				'default'           => $defaults[ $key ],
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			) );
+			$wp_customize->add_control( $setting_id, array(
+				'label'   => $label,
+				'section' => 'atelier_customizer_editorial',
+				'type'    => 'checkbox',
+			) );
+		}
+	}
+
+	/**
 	 * Get all settings merged with defaults.
 	 *
 	 * @return array<string, mixed>
@@ -124,16 +299,18 @@ class Atelier_Companion_Settings {
 	}
 
 	/**
-	 * Add quick "Settings" link on the Plugins list page.
+	 * Add quick "Settings" and "Customize" links on the Plugins list page.
 	 *
 	 * @param array<string> $links Existing plugin action links.
 	 * @return array<string>
 	 */
 	public static function add_settings_link( array $links ): array {
-		$url = admin_url( ( class_exists( 'WooCommerce' ) ? 'admin.php?page=atelier-companion' : 'options-general.php?page=atelier-companion' ) );
+		$settings_url  = admin_url( ( class_exists( 'WooCommerce' ) ? 'admin.php?page=atelier-companion' : 'options-general.php?page=atelier-companion' ) );
+		$customize_url = admin_url( 'customize.php?autofocus[panel]=atelier_shop_panel' );
 		array_unshift(
 			$links,
-			'<a href="' . esc_url( $url ) . '">' . esc_html__( 'Settings', 'atelier-companion' ) . '</a>'
+			'<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'atelier-companion' ) . '</a>',
+			'<a href="' . esc_url( $customize_url ) . '">' . esc_html__( 'Customize', 'atelier-companion' ) . '</a>'
 		);
 		return $links;
 	}
@@ -251,7 +428,12 @@ class Atelier_Companion_Settings {
 						<?php esc_html_e( 'Modular e-commerce & Bloghash Pro features built specifically for the Atelier Shop block theme.', 'atelier-companion' ); ?>
 					</p>
 				</div>
-				<span class="atelier-version-badge">v<?php echo esc_html( ATELIER_COMPANION_VERSION ); ?></span>
+				<div style="display:flex;align-items:center;gap:12px;">
+					<a href="<?php echo esc_url( admin_url( 'customize.php?autofocus[panel]=atelier_shop_panel' ) ); ?>" class="button button-primary">
+						<?php esc_html_e( 'Open Live Customizer →', 'atelier-companion' ); ?>
+					</a>
+					<span class="atelier-version-badge">v<?php echo esc_html( ATELIER_COMPANION_VERSION ); ?></span>
+				</div>
 			</div>
 
 			<form method="post" action="options.php" class="atelier-settings-form">
