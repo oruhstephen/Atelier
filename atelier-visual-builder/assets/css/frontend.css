@@ -926,3 +926,659 @@ body.avb-layout-canvas > footer {
 	from { opacity: 0; transform: scale(0.96); }
 	to { opacity: 1; transform: scale(1); }
 }
+
+
+/* ==========================================================================
+   14. Dedicated WooCommerce Store Pages (SHOP, CART, CHECKOUT, PRODUCT, ACCOUNT, POLICY)
+   ========================================================================== */
+
+/* Shop Catalog Filter & Sort Toolbar */
+.avb-catalog-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-bottom: 24px;
+	margin-bottom: 32px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.12);
+}
+
+.avb-filter-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.avb-filter-pill {
+	background: transparent;
+	border: 1px solid rgba(22, 21, 20, 0.18);
+	color: var(--avb-text-color, #161514);
+	padding: 8px 16px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.avb-filter-pill:hover,
+.avb-filter-pill.is-active {
+	background: var(--avb-accent, #161514);
+	border-color: var(--avb-accent, #161514);
+	color: #ffffff;
+}
+
+.avb-catalog-toolbar-right {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.avb-catalog-count {
+	font-size: 13px;
+	opacity: 0.72;
+}
+
+.avb-catalog-sort {
+	padding: 8px 28px 8px 12px;
+	border: 1px solid rgba(22, 21, 20, 0.2);
+	background: #ffffff;
+	font-size: 13px;
+	color: #161514;
+}
+
+/* Cart / Basket Experience */
+.avb-shipping-goal-box {
+	background: #f4efe8;
+	border: 1px solid rgba(180, 123, 86, 0.28);
+	padding: 18px 22px;
+	margin-bottom: 32px;
+}
+
+.avb-shipping-goal-text {
+	font-size: 13.5px;
+	font-weight: 500;
+	margin-bottom: 10px;
+}
+
+.avb-shipping-goal-track {
+	height: 6px;
+	background: rgba(22, 21, 20, 0.1);
+	overflow: hidden;
+}
+
+.avb-shipping-goal-fill {
+	height: 100%;
+	background: var(--avb-accent, #b47b56);
+	transition: width 0.35s ease;
+}
+
+.avb-cart-grid,
+.avb-checkout-grid {
+	display: grid;
+	grid-template-columns: 1.55fr 1fr;
+	gap: 44px;
+	align-items: start;
+}
+
+.avb-cart-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.09);
+}
+
+.avb-cart-table th {
+	text-align: left;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	padding: 14px 18px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.1);
+	background: #faf7f2;
+}
+
+.avb-cart-table td {
+	padding: 18px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.08);
+	vertical-align: middle;
+	font-size: 14px;
+}
+
+.avb-cart-prod {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.avb-cart-prod img {
+	width: 64px;
+	height: 76px;
+	object-fit: cover;
+	background: #f2ede6;
+}
+
+.avb-cart-prod strong {
+	display: block;
+	font-size: 14.5px;
+	margin-bottom: 3px;
+}
+
+.avb-cart-prod small {
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.avb-qty-control {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid rgba(22, 21, 20, 0.22);
+	background: #ffffff;
+}
+
+.avb-qty-control button {
+	width: 32px;
+	height: 36px;
+	border: none;
+	background: transparent;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.avb-qty-control input {
+	width: 40px;
+	height: 36px;
+	border: none;
+	text-align: center;
+	font-size: 13.5px;
+	font-weight: 600;
+	background: transparent;
+}
+
+.avb-cart-actions-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.avb-coupon-inline {
+	display: flex;
+	gap: 8px;
+}
+
+.avb-coupon-inline input {
+	padding: 10px 14px;
+	border: 1px solid rgba(22, 21, 20, 0.22);
+	font-size: 13px;
+	min-width: 210px;
+}
+
+.avb-summary-card {
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.1);
+	padding: 28px;
+}
+
+.avb-summary-card h3 {
+	font-family: var(--wp--preset--font-family--serif, Georgia, serif);
+	font-size: 22px;
+	font-weight: 400;
+	margin: 0 0 20px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.1);
+}
+
+.avb-summary-line {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px 0;
+	font-size: 14px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.06);
+}
+
+.avb-summary-line.is-total {
+	font-size: 17px;
+	padding-top: 16px;
+	border-bottom: none;
+}
+
+.avb-cart-trust-note {
+	margin: 14px 0 0;
+	font-size: 11.5px;
+	text-align: center;
+	opacity: 0.72;
+}
+
+/* Checkout Suite */
+.avb-checkout-steps {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 20px;
+	background: #f5f1ea;
+	border: 1px solid rgba(22, 21, 20, 0.08);
+	margin-bottom: 32px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.avb-step { opacity: 0.5; }
+.avb-step.is-done { opacity: 0.85; color: #2e7d32; }
+.avb-step.is-current { opacity: 1; color: var(--avb-accent, #b47b56); }
+.avb-step-sep { opacity: 0.35; }
+
+.avb-checkout-form-col {
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.09);
+	padding: 32px;
+}
+
+.avb-subform-heading {
+	font-size: 15px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	margin: 0 0 18px;
+}
+
+.avb-form-row-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.avb-form-field {
+	margin-bottom: 16px;
+}
+
+.avb-form-field label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.avb-form-field input {
+	width: 100%;
+	padding: 11px 14px;
+	border: 1px solid rgba(22, 21, 20, 0.2);
+	font-size: 14px;
+}
+
+.avb-payment-options {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.avb-payment-radio {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 13px 16px;
+	border: 1px solid rgba(22, 21, 20, 0.15);
+	font-size: 13.5px;
+	cursor: pointer;
+}
+
+.avb-concierge-box {
+	margin-top: 20px;
+	padding: 24px;
+	background: #f5f1ea;
+	border: 1px solid rgba(22, 21, 20, 0.08);
+}
+
+.avb-concierge-box h4 {
+	margin: 0 0 8px;
+	font-size: 15px;
+}
+
+.avb-concierge-box p {
+	font-size: 13px;
+	line-height: 1.6;
+	margin: 0 0 10px;
+	opacity: 0.85;
+}
+
+.avb-concierge-contact {
+	display: block;
+	font-size: 12.5px;
+	color: var(--avb-accent, #b47b56);
+	margin-bottom: 14px;
+}
+
+.avb-checkout-guarantees {
+	list-style: none;
+	padding: 12px 0 0;
+	margin: 0;
+	border-top: 1px solid rgba(22, 21, 20, 0.1);
+	font-size: 12.5px;
+}
+
+.avb-checkout-guarantees li {
+	padding: 4px 0;
+}
+
+/* Single Product Page Spotlight */
+.avb-single-product-spotlight {
+	display: grid;
+	grid-template-columns: 1.1fr 1fr;
+	gap: 56px;
+	align-items: start;
+}
+
+.avb-sp-main-img {
+	aspect-ratio: 4 / 4.6;
+	background: #f2ede6;
+	overflow: hidden;
+	margin-bottom: 14px;
+}
+
+.avb-sp-main-img img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.avb-sp-thumbs {
+	display: flex;
+	gap: 12px;
+}
+
+.avb-sp-thumb {
+	width: 78px;
+	height: 88px;
+	padding: 0;
+	border: 2px solid transparent;
+	background: #f2ede6;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+.avb-sp-thumb.is-active {
+	border-color: var(--avb-accent, #b47b56);
+}
+
+.avb-sp-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.avb-sp-price-row {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	margin-bottom: 20px;
+	padding-bottom: 18px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.1);
+}
+
+.avb-sp-price {
+	font-size: 22px;
+	font-weight: 500;
+}
+
+.avb-sp-rating {
+	font-size: 13px;
+	color: var(--avb-accent, #b47b56);
+}
+
+.avb-sp-swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 20px 0;
+}
+
+.avb-swatch-pill {
+	padding: 8px 14px;
+	border: 1px solid rgba(22, 21, 20, 0.22);
+	background: #ffffff;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.avb-swatch-pill.is-active {
+	border-color: #161514;
+	background: #161514;
+	color: #ffffff;
+}
+
+.avb-sp-buy-row {
+	display: flex;
+	gap: 14px;
+	margin: 24px 0 14px;
+}
+
+.avb-sp-add-btn {
+	flex: 1;
+}
+
+.avb-sp-delivery-note {
+	font-size: 12.5px;
+	color: #2e7d32;
+	margin: 0;
+}
+
+/* My Account & Collector Portal */
+.avb-account-perks-bar {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 22px;
+	background: #161514;
+	color: #f5f2ed;
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	margin-bottom: 32px;
+}
+
+.avb-account-grid {
+	display: grid;
+	grid-template-columns: 260px 1fr;
+	gap: 36px;
+	align-items: start;
+}
+
+.avb-account-nav {
+	display: flex;
+	flex-direction: column;
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.1);
+}
+
+.avb-account-nav a {
+	padding: 14px 18px;
+	font-size: 13.5px;
+	font-weight: 500;
+	color: #161514;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.07);
+}
+
+.avb-account-nav a.is-active,
+.avb-account-nav a:hover {
+	background: #f5f1ea;
+	color: var(--avb-accent, #b47b56);
+	font-weight: 600;
+}
+
+.avb-account-main {
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.1);
+	padding: 28px;
+}
+
+.avb-badge-dispatched {
+	background: #fff4e5;
+	color: #b45309;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 4px 8px;
+}
+
+.avb-badge-delivered {
+	background: #e6f4ea;
+	color: #1e7e34;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 4px 8px;
+}
+
+.avb-account-support-note {
+	margin-top: 22px;
+	font-size: 13px;
+	opacity: 0.75;
+}
+
+/* Order Tracking Card */
+.avb-order-tracker-card {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+.avb-tracker-form {
+	display: grid;
+	grid-template-columns: 1fr 1fr auto;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.avb-tracker-form input {
+	padding: 13px 16px;
+	border: 1px solid rgba(22, 21, 20, 0.22);
+	background: #ffffff;
+	font-size: 14px;
+}
+
+/* Policy Document with Sticky TOC */
+.avb-policy-meta-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin-bottom: 12px;
+}
+
+.avb-policy-date-badge {
+	font-size: 11px;
+	padding: 3px 10px;
+	background: #efeae2;
+	color: #5c554d;
+	font-weight: 600;
+}
+
+.avb-policy-grid {
+	display: grid;
+	grid-template-columns: 300px 1fr;
+	gap: 48px;
+	align-items: start;
+	margin-top: 36px;
+}
+
+.avb-policy-toc-card {
+	position: sticky;
+	top: 32px;
+	background: #ffffff;
+	border: 1px solid rgba(22, 21, 20, 0.1);
+	padding: 24px;
+}
+
+.avb-policy-toc-card h4 {
+	margin: 0 0 14px;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+}
+
+.avb-policy-toc-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 20px;
+}
+
+.avb-policy-toc-list li {
+	margin-bottom: 10px;
+}
+
+.avb-policy-toc-list a {
+	font-size: 13.5px;
+	color: #161514;
+	text-decoration: none;
+	display: flex;
+	gap: 6px;
+}
+
+.avb-policy-toc-list a span {
+	color: var(--avb-accent, #b47b56);
+	font-weight: 600;
+}
+
+.avb-policy-contact-box {
+	padding-top: 16px;
+	border-top: 1px solid rgba(22, 21, 20, 0.1);
+	font-size: 12.5px;
+	line-height: 1.6;
+	opacity: 0.82;
+}
+
+.avb-policy-clause {
+	padding-bottom: 36px;
+	margin-bottom: 36px;
+	border-bottom: 1px solid rgba(22, 21, 20, 0.1);
+}
+
+.avb-clause-head {
+	display: flex;
+	align-items: baseline;
+	gap: 14px;
+	margin-bottom: 14px;
+}
+
+.avb-clause-num {
+	font-family: var(--wp--preset--font-family--serif, Georgia, serif);
+	font-size: 24px;
+	color: var(--avb-accent, #b47b56);
+}
+
+.avb-clause-title {
+	font-family: var(--wp--preset--font-family--serif, Georgia, serif);
+	font-size: 24px;
+	font-weight: 400;
+	margin: 0;
+}
+
+.avb-clause-body p {
+	font-size: 15.5px;
+	line-height: 1.78;
+	margin: 0;
+}
+
+.avb-clause-callout {
+	margin-top: 18px;
+	padding: 14px 18px;
+	background: #f5f1ea;
+	border-left: 3px solid var(--avb-accent, #b47b56);
+	font-size: 13.5px;
+}
+
+@media (max-width: 920px) {
+	.avb-cart-grid,
+	.avb-checkout-grid,
+	.avb-single-product-spotlight,
+	.avb-account-grid,
+	.avb-policy-grid,
+	.avb-tracker-form {
+		grid-template-columns: 1fr;
+	}
+}

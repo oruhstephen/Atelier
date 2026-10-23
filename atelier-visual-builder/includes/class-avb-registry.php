@@ -21,8 +21,12 @@ class AVB_Registry {
 	 */
 	public static function get_categories() {
 		return array(
+			'wc_pages'    => array(
+				'title' => __( 'WooCommerce Store Pages', 'atelier-visual-builder' ),
+				'icon'  => '🏬',
+			),
 			'woocommerce' => array(
-				'title' => __( 'WooCommerce & Shop', 'atelier-visual-builder' ),
+				'title' => __( 'WooCommerce Grids & Merch', 'atelier-visual-builder' ),
 				'icon'  => '🛍️',
 			),
 			'marketing'   => array(
@@ -30,7 +34,7 @@ class AVB_Registry {
 				'icon'  => '✨',
 			),
 			'basic'       => array(
-				'title' => __( 'Editorial & Media', 'atelier-visual-builder' ),
+				'title' => __( 'Editorial, Policy & Media', 'atelier-visual-builder' ),
 				'icon'  => '✒️',
 			),
 			'layout'      => array(
@@ -92,6 +96,311 @@ class AVB_Registry {
 	 */
 	public static function get_widgets() {
 		return array(
+			/* =============================================================
+			   NEW: Dedicated WooCommerce Store Page Widgets (SHOP, CART, CHECKOUT, PRODUCT, MY ACCOUNT, POLICY)
+			   ============================================================= */
+
+			'wc-shop-catalog' => array(
+				'type'        => 'wc-shop-catalog',
+				'title'       => __( 'Full Shop Catalog + Filters', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '🏪',
+				'description' => __( 'Complete Shop page catalog with live category filter pills, sorting toolbar, product grid, and pagination.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'eyebrow'           => 'ATELIER STOREFRONT',
+						'title'             => 'All Studio Objects',
+						'subtitle'          => 'Filter by department or sort our complete collection of small-batch home objects.',
+						'show_filter_pills' => true,
+						'show_sort_bar'     => true,
+						'show_result_count' => true,
+						'columns'           => 4,
+						'per_page'          => 8,
+						'default_orderby'   => 'date',
+						'btn_label'         => 'Add to Bag',
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'eyebrow', 'label' => 'Eyebrow Tag', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Catalog Heading', 'type' => 'text' ),
+					array( 'key' => 'subtitle', 'label' => 'Catalog Subtitle', 'type' => 'textarea' ),
+					array( 'key' => 'show_filter_pills', 'label' => 'Show Category Filter Bar', 'type' => 'toggle' ),
+					array( 'key' => 'show_sort_bar', 'label' => 'Show Sort Dropdown', 'type' => 'toggle' ),
+					array( 'key' => 'show_result_count', 'label' => 'Show Product Result Counter', 'type' => 'toggle' ),
+					array( 'key' => 'columns', 'label' => 'Grid Columns (2-4)', 'type' => 'number', 'min' => 2, 'max' => 4 ),
+					array( 'key' => 'per_page', 'label' => 'Products Per Page (4-24)', 'type' => 'number', 'min' => 4, 'max' => 24 ),
+					array(
+						'key'     => 'default_orderby',
+						'label'   => 'Default Sort Order',
+						'type'    => 'select',
+						'options' => array(
+							'date'       => 'Newest Arrivals',
+							'popularity' => 'Best Selling',
+							'price'      => 'Price: Low to High',
+							'price-desc' => 'Price: High to Low',
+						),
+					),
+					array( 'key' => 'btn_label', 'label' => 'Add to Cart Button Label', 'type' => 'text' ),
+				),
+			),
+
+			'wc-cart-basket' => array(
+				'type'        => 'wc-cart-basket',
+				'title'       => __( 'Cart / Basket Experience', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '🧺',
+				'description' => __( 'Complete WooCommerce Shopping Bag with Free Shipping goal bar, 2-column order summary, coupon box, and trust badges.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'eyebrow'            => 'YOUR SHOPPING BAG',
+						'title'              => 'Review Your Selection',
+						'show_shipping_bar'  => true,
+						'shipping_goal'      => 200,
+						'shipping_msg'       => 'You are {amount} away from complimentary express courier delivery.',
+						'shipping_unlocked'  => '✓ You have unlocked complimentary express courier delivery!',
+						'show_coupon'        => true,
+						'show_trust_badges'  => true,
+						'trust_text'         => 'Complimentary 30-Day Returns • Plastic-Free Crating • Encrypted Checkout',
+						'checkout_btn_label' => 'Proceed to Checkout →',
+						'continue_url'       => '/shop',
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'eyebrow', 'label' => 'Eyebrow Tag', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Cart Heading', 'type' => 'text' ),
+					array( 'key' => 'show_shipping_bar', 'label' => 'Show Free Shipping Progress Bar', 'type' => 'toggle' ),
+					array( 'key' => 'shipping_goal', 'label' => 'Free Shipping Goal Amount ($)', 'type' => 'number', 'min' => 10, 'max' => 2000 ),
+					array( 'key' => 'shipping_msg', 'label' => 'Progress Message ({amount} placeholder)', 'type' => 'text' ),
+					array( 'key' => 'shipping_unlocked', 'label' => 'Goal Unlocked Message', 'type' => 'text' ),
+					array( 'key' => 'show_coupon', 'label' => 'Show Promo / Coupon Code Input', 'type' => 'toggle' ),
+					array( 'key' => 'show_trust_badges', 'label' => 'Show Security & Returns Badge Strip', 'type' => 'toggle' ),
+					array( 'key' => 'trust_text', 'label' => 'Trust Guarantee Text', 'type' => 'text' ),
+					array( 'key' => 'checkout_btn_label', 'label' => 'Checkout Button Text', 'type' => 'text' ),
+					array( 'key' => 'continue_url', 'label' => 'Continue Shopping URL', 'type' => 'text' ),
+				),
+			),
+
+			'wc-checkout-suite' => array(
+				'type'        => 'wc-checkout-suite',
+				'title'       => __( 'Luxury Checkout Suite', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '💳',
+				'description' => __( 'Full WooCommerce Checkout with 3-step progress bar, billing/shipping form, order summary, and concierge sidebar.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'show_steps'        => true,
+						'step_1_label'      => '01. Shopping Bag',
+						'step_2_label'      => '02. Delivery & Payment',
+						'step_3_label'      => '03. Order Confirmation',
+						'title'             => 'Client & Delivery Details',
+						'subtitle'          => 'All transactions are 256-bit SSL encrypted. Duties and taxes are calculated automatically.',
+						'show_concierge'    => true,
+						'concierge_title'   => 'Atelier Client Concierge',
+						'concierge_text'    => 'Need assistance with white-glove delivery, trade tax exemption, or bespoke gift notes? Contact our studio team.',
+						'concierge_contact' => 'concierge@atelier-studio.com • +1 (800) 555-0194',
+						'guarantee_1'       => '30-Day Home Trial & Free Courier Returns',
+						'guarantee_2'       => 'Insured Carbon-Neutral Dispatch Within 48h',
+						'guarantee_3'       => '2-Year Structural Craftsmanship Warranty',
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'show_steps', 'label' => 'Show 3-Step Checkout Progress Header', 'type' => 'toggle' ),
+					array( 'key' => 'step_1_label', 'label' => 'Step 1 Label', 'type' => 'text' ),
+					array( 'key' => 'step_2_label', 'label' => 'Step 2 Label (Active)', 'type' => 'text' ),
+					array( 'key' => 'step_3_label', 'label' => 'Step 3 Label', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Checkout Title', 'type' => 'text' ),
+					array( 'key' => 'subtitle', 'label' => 'Security Subtitle', 'type' => 'textarea' ),
+					array( 'key' => 'show_concierge', 'label' => 'Show Client Concierge & Guarantees Bar', 'type' => 'toggle' ),
+					array( 'key' => 'concierge_title', 'label' => 'Concierge Box Heading', 'type' => 'text' ),
+					array( 'key' => 'concierge_text', 'label' => 'Concierge Description', 'type' => 'textarea' ),
+					array( 'key' => 'concierge_contact', 'label' => 'Concierge Phone / Email', 'type' => 'text' ),
+					array( 'key' => 'guarantee_1', 'label' => 'Guarantee Point #1', 'type' => 'text' ),
+					array( 'key' => 'guarantee_2', 'label' => 'Guarantee Point #2', 'type' => 'text' ),
+					array( 'key' => 'guarantee_3', 'label' => 'Guarantee Point #3', 'type' => 'text' ),
+				),
+			),
+
+			'wc-single-product-spotlight' => array(
+				'type'        => 'wc-single-product-spotlight',
+				'title'       => __( 'Single Product Page Spotlight', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '🏺',
+				'description' => __( 'Complete 2-column Single Product showcase with gallery thumbnails, swatches, quantity stepper, Add-to-Cart, and specs accordion.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'product_id'     => '',
+						'eyebrow'        => 'HAND-THROWN STUDIO EDITION',
+						'fallback_title' => 'Kyoto Travertine & Stoneware Vessel',
+						'fallback_price' => '$245.00',
+						'fallback_desc'  => 'Wheel-thrown in small batches from coarse iron-rich stoneware clay and finished with a tactile raw mineral glaze. Each vessel exhibits subtle variations in tone.',
+						'fallback_img_1' => 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80',
+						'fallback_img_2' => 'https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=800&q=80',
+						'fallback_img_3' => 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=800&q=80',
+						'swatches_label' => 'Finish / Glaze: Warm Limestone, Raw Umber, Kiln Ash',
+						'btn_text'       => 'Add to Bag',
+						'delivery_note'  => 'In stock — Dispatches within 24–48 hours with complimentary insured shipping.',
+						'spec_1_title'   => 'Dimensions & Weight',
+						'spec_1_body'    => 'Height: 32 cm • Diameter: 21 cm • Weight: 2.4 kg. Watertight interior glaze.',
+						'spec_2_title'   => 'Materials & Care',
+						'spec_2_body'    => '100% natural high-fired stoneware. Wipe exterior with a soft damp cloth.',
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'product_id', 'label' => 'WooCommerce Product ID (blank = current or latest product)', 'type' => 'text' ),
+					array( 'key' => 'eyebrow', 'label' => 'Edition / Category Eyebrow', 'type' => 'text' ),
+					array( 'key' => 'fallback_title', 'label' => 'Product Title (used if no Product ID)', 'type' => 'text' ),
+					array( 'key' => 'fallback_price', 'label' => 'Price Display (used if no Product ID)', 'type' => 'text' ),
+					array( 'key' => 'fallback_desc', 'label' => 'Short Description Override', 'type' => 'textarea' ),
+					array( 'key' => 'fallback_img_1', 'label' => 'Primary Gallery Image', 'type' => 'image' ),
+					array( 'key' => 'fallback_img_2', 'label' => 'Secondary Thumbnail Image', 'type' => 'image' ),
+					array( 'key' => 'fallback_img_3', 'label' => 'Third Thumbnail Image', 'type' => 'image' ),
+					array( 'key' => 'swatches_label', 'label' => 'Finish / Variant Pills (comma-separated)', 'type' => 'text' ),
+					array( 'key' => 'btn_text', 'label' => 'Add to Cart Button Label', 'type' => 'text' ),
+					array( 'key' => 'delivery_note', 'label' => 'Shipping & Stock Note', 'type' => 'text' ),
+					array( 'key' => 'spec_1_title', 'label' => 'Accordion Tab 1 Title', 'type' => 'text' ),
+					array( 'key' => 'spec_1_body', 'label' => 'Accordion Tab 1 Content', 'type' => 'textarea' ),
+					array( 'key' => 'spec_2_title', 'label' => 'Accordion Tab 2 Title', 'type' => 'text' ),
+					array( 'key' => 'spec_2_body', 'label' => 'Accordion Tab 2 Content', 'type' => 'textarea' ),
+				),
+			),
+
+			'wc-my-account-portal' => array(
+				'type'        => 'wc-my-account-portal',
+				'title'       => __( 'My Account & Collector Portal', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '👤',
+				'description' => __( 'Branded WooCommerce My Account portal with collector perks banner, navigation tabs, order history, and login/register view.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'eyebrow'      => 'ATELIER CLIENT PORTAL',
+						'title'        => 'My Collector Account',
+						'subtitle'     => 'Manage your acquisitions, track active shipments, download invoices, and update your delivery preferences.',
+						'show_perks'   => true,
+						'perk_1'       => '✦ Priority Access to Small-Batch Releases',
+						'perk_2'       => '📦 One-Click Courier Tracking & Returns',
+						'perk_3'       => '🛡️ Lifetime Care & Restoration Registry',
+						'support_note' => 'Need help with an existing order? Email concierge@atelier-studio.com',
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'eyebrow', 'label' => 'Eyebrow Tag', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Account Portal Heading', 'type' => 'text' ),
+					array( 'key' => 'subtitle', 'label' => 'Welcome Subtitle', 'type' => 'textarea' ),
+					array( 'key' => 'show_perks', 'label' => 'Show Collector Member Perks Strip', 'type' => 'toggle' ),
+					array( 'key' => 'perk_1', 'label' => 'Member Perk #1', 'type' => 'text' ),
+					array( 'key' => 'perk_2', 'label' => 'Member Perk #2', 'type' => 'text' ),
+					array( 'key' => 'perk_3', 'label' => 'Member Perk #3', 'type' => 'text' ),
+					array( 'key' => 'support_note', 'label' => 'Client Support Footer Note', 'type' => 'text' ),
+				),
+			),
+
+			'wc-order-tracking' => array(
+				'type'        => 'wc-order-tracking',
+				'title'       => __( 'Order Tracking Lookup', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '🚚',
+				'description' => __( 'Live WooCommerce Order Tracking lookup box by Order ID and Billing Email.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'eyebrow'   => 'SHIPMENT DISPATCH TRACKER',
+						'title'     => 'Track Your Atelier Order',
+						'subtitle'  => 'Enter the Order ID found in your confirmation receipt along with your billing email address to inspect real-time courier status.',
+						'btn_label' => 'Track Shipment',
+					),
+					'style'    => array_merge(
+						self::get_default_style(),
+						array(
+							'bg_color'   => '#f6f3ee',
+							'text_align' => 'center',
+						)
+					),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'eyebrow', 'label' => 'Eyebrow Tag', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Heading', 'type' => 'text' ),
+					array( 'key' => 'subtitle', 'label' => 'Instructions Copy', 'type' => 'textarea' ),
+					array( 'key' => 'btn_label', 'label' => 'Submit Button Text', 'type' => 'text' ),
+				),
+			),
+
+			'policy-document' => array(
+				'type'        => 'policy-document',
+				'title'       => __( 'Legal, Shipping & Policy Layout', 'atelier-visual-builder' ),
+				'category'    => 'wc_pages',
+				'icon'        => '📜',
+				'description' => __( 'Two-column sticky table-of-contents sidebar + structured policy clauses for Shipping, Returns, Privacy, and Terms pages.', 'atelier-visual-builder' ),
+				'defaults'    => array(
+					'content'  => array(
+						'eyebrow'        => 'CLIENT CARE & GOVERNANCE',
+						'title'          => 'Shipping, Returns & Privacy Policy',
+						'effective_date' => 'Last Updated: October 2026',
+						'intro'          => 'We believe in complete transparency regarding how your objects are crafted, packed, insured in transit, and how your personal data is protected.',
+						'contact_box'    => "Questions regarding customs, returns, or data privacy?\nEmail: legal@atelier-studio.com\nStudio Hours: Mon–Fri, 09:00–18:00 CET",
+						'clauses'        => array(
+							array(
+								'number'  => '01',
+								'heading' => 'Global Courier Dispatch & Lead Times',
+								'body'    => "All in-stock pieces are inspected by hand and dispatched from our studio warehouse within 24 to 48 business hours.\n\n• Domestic Express Delivery: 2–3 business days.\n• International Air Courier (DHL / FedEx): 4–6 business days.\n• Made-to-Order Architectural Furniture: 4–6 weeks kiln and workshop lead time.",
+								'callout' => 'Complimentary insured shipping is automatically applied to all orders over $200.',
+							),
+							array(
+								'number'  => '02',
+								'heading' => '30-Day Home Trial & Returns Protocol',
+								'body'    => "We invite you to experience our objects in the natural light of your own space for 30 days. If an item does not harmonize with your interior, you may request a return authorization through your Collector Portal.\n\nReturned pieces must be unused and packed in their original biodegradable protective crating.",
+								'callout' => 'Refunds are issued to your original payment method within 3 business days of studio inspection.',
+							),
+							array(
+								'number'  => '03',
+								'heading' => 'Transit Insurance & Breakage Replacement',
+								'body'    => 'Every ceramic, glass, and stone object is fully insured against transit damage at no additional cost to you. In the rare event that a piece arrives damaged, photograph the outer crate and object within 48 hours of delivery for an immediate complimentary replacement.',
+								'callout' => '',
+							),
+							array(
+								'number'  => '04',
+								'heading' => 'Client Data Privacy & GDPR Compliance',
+								'body'    => 'Atelier collects only the essential information required to fulfill your order, provide courier tracking, and—where explicitly requested—send our seasonal journal. We never sell, rent, or trade client data with third-party advertisers.',
+								'callout' => 'You may request a complete export or deletion of your personal records at any time.',
+							),
+						),
+					),
+					'style'    => self::get_default_style(),
+					'advanced' => self::get_default_advanced(),
+				),
+				'fields'      => array(
+					array( 'key' => 'eyebrow', 'label' => 'Eyebrow Label', 'type' => 'text' ),
+					array( 'key' => 'title', 'label' => 'Policy Document Title', 'type' => 'text' ),
+					array( 'key' => 'effective_date', 'label' => 'Effective Date / Version Badge', 'type' => 'text' ),
+					array( 'key' => 'intro', 'label' => 'Lead Summary Paragraph', 'type' => 'textarea' ),
+					array( 'key' => 'contact_box', 'label' => 'Sidebar Contact Card Text', 'type' => 'textarea' ),
+					array(
+						'key'       => 'clauses',
+						'label'     => 'Policy Sections / Clauses',
+						'type'      => 'repeater',
+						'subfields' => array(
+							array( 'key' => 'number', 'label' => 'Section Number (e.g. 01)', 'type' => 'text' ),
+							array( 'key' => 'heading', 'label' => 'Clause Heading', 'type' => 'text' ),
+							array( 'key' => 'body', 'label' => 'Policy Text', 'type' => 'textarea' ),
+							array( 'key' => 'callout', 'label' => 'Highlight Callout Box (optional)', 'type' => 'text' ),
+						),
+					),
+				),
+			),
+
+			/* =============================================================
+			   Existing Merchandising, Hero, Editorial & Layout Widgets
+			   ============================================================= */
+
 			'hero-banner'      => array(
 				'type'        => 'hero-banner',
 				'title'       => __( 'Luxury Hero Banner', 'atelier-visual-builder' ),
@@ -959,16 +1268,145 @@ class AVB_Registry {
 
 	/**
 	 * Get 1-click Pre-Built Starter Templates for the Template Library Modal.
+	 * Includes dedicated templates for SHOP, CART/BASKET, CHECKOUT, PRODUCT, MY ACCOUNT, and POLICY pages.
 	 *
 	 * @return array
 	 */
 	public static function get_templates() {
 		return array(
+			'wc-shop-page'      => array(
+				'id'          => 'wc-shop-page',
+				'title'       => __( 'WooCommerce Shop / Catalog Page', 'atelier-visual-builder' ),
+				'category'    => __( 'Shop Page', 'atelier-visual-builder' ),
+				'badge'       => 'SHOP',
+				'description' => __( 'Complete Shop page with editorial collection header, department Bento cards, live filterable product catalog grid, and store guarantees.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element(
+						'hero-banner',
+						array(
+							'content' => array(
+								'eyebrow'    => 'THE COMPLETE ARCHIVE',
+								'title'      => 'Objects for Architectural Living',
+								'subtitle'   => 'Explore our seasonal ceramics, organic Belgian linens, and sculptural lighting.',
+								'btn_1_text' => '',
+								'btn_2_text' => '',
+								'min_height' => 340,
+							),
+						)
+					),
+					self::create_element( 'wc-category-cards' ),
+					self::create_element( 'wc-shop-catalog' ),
+					self::create_element( 'feature-icons' ),
+					self::create_element( 'newsletter-box' ),
+				),
+			),
+
+			'wc-cart-page'      => array(
+				'id'          => 'wc-cart-page',
+				'title'       => __( 'WooCommerce Cart / Basket Page', 'atelier-visual-builder' ),
+				'category'    => __( 'Cart / Basket', 'atelier-visual-builder' ),
+				'badge'       => 'CART / BASKET',
+				'description' => __( 'High-converting Shopping Bag layout with Free Shipping progress bar, 2-column cart & summary, cross-sell recommendations, and shipping assurances.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element( 'wc-cart-basket' ),
+					self::create_element(
+						'wc-product-grid',
+						array(
+							'content' => array(
+								'eyebrow'    => 'COMPLETE YOUR SPACE',
+								'title'      => 'Clients Also Acquired',
+								'subtitle'   => 'Companion pieces curated to pair effortlessly with your selection.',
+								'query_type' => 'featured',
+								'columns'    => 4,
+								'limit'      => 4,
+								'show_cta'   => false,
+							),
+						)
+					),
+					self::create_element( 'feature-icons' ),
+				),
+			),
+
+			'wc-checkout-page'  => array(
+				'id'          => 'wc-checkout-page',
+				'title'       => __( 'WooCommerce Luxury Checkout Page', 'atelier-visual-builder' ),
+				'category'    => __( 'Checkout', 'atelier-visual-builder' ),
+				'badge'       => 'CHECKOUT',
+				'description' => __( 'Distraction-free luxury checkout page with 3-step progress bar, live WooCommerce checkout form, concierge support sidebar, and checkout FAQ.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element( 'wc-checkout-suite' ),
+					self::create_element(
+						'accordion-faq',
+						array(
+							'content' => array(
+								'eyebrow'  => 'CHECKOUT ASSISTANCE',
+								'title'    => 'Payment, Duties & Delivery FAQ',
+								'subtitle' => 'Answers to common questions before finalizing your acquisition.',
+							),
+						)
+					),
+				),
+			),
+
+			'wc-product-page'   => array(
+				'id'          => 'wc-product-page',
+				'title'       => __( 'Single Product Flagship Showcase', 'atelier-visual-builder' ),
+				'category'    => __( 'Product Page', 'atelier-visual-builder' ),
+				'badge'       => 'PRODUCT',
+				'description' => __( 'Bespoke Single Product template with 2-column gallery & buy box, 50/50 artisan story, 3-column material craft notes, client reviews, and related products.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element( 'wc-single-product-spotlight' ),
+					self::create_element( 'feature-icons' ),
+					self::create_element( 'split-showcase' ),
+					self::create_element( 'columns-row' ),
+					self::create_element( 'testimonials' ),
+					self::create_element(
+						'wc-product-grid',
+						array(
+							'content' => array(
+								'eyebrow'    => 'COMPANION OBJECTS',
+								'title'      => 'You May Also Like',
+								'query_type' => 'latest',
+								'columns'    => 4,
+								'limit'      => 4,
+								'show_cta'   => false,
+							),
+						)
+					),
+				),
+			),
+
+			'wc-myaccount-page' => array(
+				'id'          => 'wc-myaccount-page',
+				'title'       => __( 'My Account & Collector Portal Page', 'atelier-visual-builder' ),
+				'category'    => __( 'My Account', 'atelier-visual-builder' ),
+				'badge'       => 'MY ACCOUNT',
+				'description' => __( 'Branded customer account dashboard with collector perks, live WooCommerce orders/addresses portal, shipment tracker, and care guarantees.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element( 'wc-my-account-portal' ),
+					self::create_element( 'wc-order-tracking' ),
+					self::create_element( 'feature-icons' ),
+				),
+			),
+
+			'wc-policy-page'    => array(
+				'id'          => 'wc-policy-page',
+				'title'       => __( 'Shipping, Returns & Privacy Policy Page', 'atelier-visual-builder' ),
+				'category'    => __( 'Policy & Legal', 'atelier-visual-builder' ),
+				'badge'       => 'POLICY',
+				'description' => __( 'Structured legal & customer care page with sticky Table of Contents sidebar, numbered policy clauses, live Order Tracker, and collapsible FAQ.', 'atelier-visual-builder' ),
+				'elements'    => array(
+					self::create_element( 'policy-document' ),
+					self::create_element( 'wc-order-tracking' ),
+					self::create_element( 'accordion-faq' ),
+				),
+			),
+
 			'luxury-home'       => array(
 				'id'          => 'luxury-home',
 				'title'       => __( 'Atelier Flagship Homepage', 'atelier-visual-builder' ),
 				'category'    => __( 'Full Page', 'atelier-visual-builder' ),
-				'badge'       => 'POPULAR',
+				'badge'       => 'HOMEPAGE',
 				'description' => __( 'Complete luxury storefront with Hero Banner, USP Bar, WooCommerce New Arrivals, Split Story, Category Bento Grid, Testimonials, and Newsletter.', 'atelier-visual-builder' ),
 				'elements'    => array(
 					self::create_element( 'hero-banner' ),
@@ -980,11 +1418,12 @@ class AVB_Registry {
 					self::create_element( 'newsletter-box' ),
 				),
 			),
+
 			'seasonal-lookbook' => array(
 				'id'          => 'seasonal-lookbook',
 				'title'       => __( 'Interactive Lookbook & Shop the Edit', 'atelier-visual-builder' ),
 				'category'    => __( 'Lookbook', 'atelier-visual-builder' ),
-				'badge'       => 'EDITORIAL',
+				'badge'       => 'LOOKBOOK',
 				'description' => __( 'Interactive hotspot lookbook with pulsing product pins, 3-column craftsmanship notes, and featured product grid.', 'atelier-visual-builder' ),
 				'elements'    => array(
 					self::create_element(
@@ -1012,11 +1451,12 @@ class AVB_Registry {
 					),
 				),
 			),
+
 			'flash-sale'        => array(
 				'id'          => 'flash-sale',
 				'title'       => __( 'Archive Sale & Limited Drop Page', 'atelier-visual-builder' ),
 				'category'    => __( 'Landing Page', 'atelier-visual-builder' ),
-				'badge'       => 'HIGH CONVERSION',
+				'badge'       => 'SALE DROP',
 				'description' => __( 'High-converting campaign page with live Countdown Timer, On-Sale WooCommerce Product Grid, Guarantees, and FAQ Accordion.', 'atelier-visual-builder' ),
 				'elements'    => array(
 					self::create_element( 'countdown-banner' ),
@@ -1035,11 +1475,12 @@ class AVB_Registry {
 					self::create_element( 'accordion-faq' ),
 				),
 			),
+
 			'brand-story'       => array(
 				'id'          => 'brand-story',
 				'title'       => __( 'Our Craft / About Atelier Page', 'atelier-visual-builder' ),
 				'category'    => __( 'Editorial', 'atelier-visual-builder' ),
-				'badge'       => 'STORYTELLING',
+				'badge'       => 'ABOUT',
 				'description' => __( 'Editorial brand manifesto with hero banner, drop-cap essay, 50/50 split showcase, and 3-step studio process.', 'atelier-visual-builder' ),
 				'elements'    => array(
 					self::create_element(
@@ -1061,6 +1502,7 @@ class AVB_Registry {
 					self::create_element( 'newsletter-box' ),
 				),
 			),
+
 			'vip-membership'    => array(
 				'id'          => 'vip-membership',
 				'title'       => __( 'Trade Program & Patron Membership', 'atelier-visual-builder' ),

@@ -31,16 +31,17 @@
 			btn.addEventListener('click', function () {
 				var tplId = btn.getAttribute('data-template');
 				var title = btn.getAttribute('data-title') || 'Atelier Page';
-				createNewBuilderPage(title, tplId, btn);
+				var wcRole = btn.getAttribute('data-wc-role') || '';
+				createNewBuilderPage(title, tplId, btn, wcRole);
 			});
 		});
 	}
 
-	function createNewBuilderPage(title, templateId, btnEl) {
+	function createNewBuilderPage(title, templateId, btnEl, wcRole) {
 		var origText = btnEl ? btnEl.textContent : '';
 		if (btnEl) {
 			btnEl.disabled = true;
-			btnEl.textContent = 'Creating Page...';
+			btnEl.textContent = 'Opening Studio...';
 		}
 
 		$.post(CFG.ajaxUrl, {
@@ -48,6 +49,7 @@
 			nonce: CFG.nonce,
 			title: title || 'Atelier Custom Page',
 			template_id: templateId || '',
+			wc_role: wcRole || '',
 		}).done(function (res) {
 			if (res && res.success && res.data && res.data.editorUrl) {
 				window.location.href = res.data.editorUrl;
@@ -491,6 +493,29 @@
 				if (titleEl) titleEl.textContent = '⚙ Page Settings';
 				if (tabsEl) tabsEl.style.display = 'none';
 				bodyEl.innerHTML =
+					'<div class="avb-field-group">' +
+					'<label class="avb-field-label">Assign as Core WooCommerce / Policy Page</label>' +
+					'<select class="avb-select" data-page-setting="wc_role">' +
+					'<option value="" ' +
+					(!this.pageSettings.wc_role ? 'selected' : '') +
+					'>— Standard Page (None) —</option>' +
+					'<option value="shop" ' +
+					(this.pageSettings.wc_role === 'shop' ? 'selected' : '') +
+					'>🏪 WooCommerce Shop / Catalog Page</option>' +
+					'<option value="cart" ' +
+					(this.pageSettings.wc_role === 'cart' ? 'selected' : '') +
+					'>🧺 WooCommerce Cart / Basket Page</option>' +
+					'<option value="checkout" ' +
+					(this.pageSettings.wc_role === 'checkout' ? 'selected' : '') +
+					'>💳 WooCommerce Checkout Page</option>' +
+					'<option value="myaccount" ' +
+					(this.pageSettings.wc_role === 'myaccount' ? 'selected' : '') +
+					'>👤 WooCommerce My Account Portal</option>' +
+					'<option value="policy" ' +
+					(this.pageSettings.wc_role === 'policy' ? 'selected' : '') +
+					'>📜 Store Privacy & Terms Policy Page</option>' +
+					'</select>' +
+					'</div>' +
 					'<div class="avb-field-group">' +
 					'<label class="avb-field-label">Page Layout Mode</label>' +
 					'<select class="avb-select" data-page-setting="layout">' +

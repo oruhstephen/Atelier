@@ -110,6 +110,7 @@ class AVB_Editor {
 		$page_settings  = array(
 			'layout'   => 'full-width',
 			'bg_color' => '#fbf9f6',
+			'wc_role'  => '',
 		);
 
 		if ( $post ) {
@@ -127,20 +128,20 @@ class AVB_Editor {
 			'avb-editor',
 			'AVB_STUDIO',
 			array(
-				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-				'nonce'         => wp_create_nonce( 'avb_studio_nonce' ),
-				'postId'        => $post ? $post->ID : 0,
-				'postTitle'     => $post ? $post->post_title : '',
-				'postStatus'    => $post ? $post->post_status : 'draft',
-				'permalink'     => $post ? get_permalink( $post->ID ) : home_url( '/' ),
-				'exitUrl'       => admin_url( 'admin.php?page=atelier-builder' ),
-				'categories'    => AVB_Registry::get_categories(),
-				'widgets'       => AVB_Registry::get_widgets(),
-				'templates'     => AVB_Registry::get_templates(),
-				'defaultStyle'  => AVB_Registry::get_default_style(),
-				'defaultAdv'    => AVB_Registry::get_default_advanced(),
-				'elements'      => $saved_elements,
-				'pageSettings'  => $page_settings,
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'nonce'        => wp_create_nonce( 'avb_studio_nonce' ),
+				'postId'       => $post ? $post->ID : 0,
+				'postTitle'    => $post ? $post->post_title : '',
+				'postStatus'   => $post ? $post->post_status : 'draft',
+				'permalink'    => $post ? get_permalink( $post->ID ) : home_url( '/' ),
+				'exitUrl'      => admin_url( 'admin.php?page=atelier-builder' ),
+				'categories'   => AVB_Registry::get_categories(),
+				'widgets'      => AVB_Registry::get_widgets(),
+				'templates'    => AVB_Registry::get_templates(),
+				'defaultStyle' => AVB_Registry::get_default_style(),
+				'defaultAdv'   => AVB_Registry::get_default_advanced(),
+				'elements'     => $saved_elements,
+				'pageSettings' => $page_settings,
 			)
 		);
 	}
@@ -164,12 +165,63 @@ class AVB_Editor {
 		$templates = AVB_Registry::get_templates();
 		$pages     = get_posts(
 			array(
-				'post_type'      => array( 'page', 'post' ),
+				'post_type'      => array( 'page', 'post', 'product' ),
 				'post_status'    => array( 'publish', 'draft', 'private' ),
-				'posts_per_page' => 25,
+				'posts_per_page' => 30,
 				'orderby'        => 'modified',
 				'order'          => 'DESC',
 			)
+		);
+
+		$wc_quick_pages = array(
+			array(
+				'role'     => 'shop',
+				'icon'     => '🏪',
+				'label'    => __( 'SHOP / CATALOG', 'atelier-visual-builder' ),
+				'title'    => __( 'Shop', 'atelier-visual-builder' ),
+				'template' => 'wc-shop-page',
+				'desc'     => __( 'Category Bento + Filterable Catalog Grid', 'atelier-visual-builder' ),
+			),
+			array(
+				'role'     => 'cart',
+				'icon'     => '🧺',
+				'label'    => __( 'CART / BASKET', 'atelier-visual-builder' ),
+				'title'    => __( 'Shopping Bag', 'atelier-visual-builder' ),
+				'template' => 'wc-cart-page',
+				'desc'     => __( 'Free Shipping Goal Bar + 2-Col Bag & Cross-Sells', 'atelier-visual-builder' ),
+			),
+			array(
+				'role'     => 'checkout',
+				'icon'     => '💳',
+				'label'    => __( 'CHECKOUT', 'atelier-visual-builder' ),
+				'title'    => __( 'Checkout', 'atelier-visual-builder' ),
+				'template' => 'wc-checkout-page',
+				'desc'     => __( '3-Step Checkout Suite + Concierge & FAQ', 'atelier-visual-builder' ),
+			),
+			array(
+				'role'     => 'product',
+				'icon'     => '🏺',
+				'label'    => __( 'PRODUCT SHOWCASE', 'atelier-visual-builder' ),
+				'title'    => __( 'Flagship Product Showcase', 'atelier-visual-builder' ),
+				'template' => 'wc-product-page',
+				'desc'     => __( '2-Col Gallery & Buy Box + Story + Reviews', 'atelier-visual-builder' ),
+			),
+			array(
+				'role'     => 'myaccount',
+				'icon'     => '👤',
+				'label'    => __( 'MY ACCOUNT', 'atelier-visual-builder' ),
+				'title'    => __( 'My Collector Account', 'atelier-visual-builder' ),
+				'template' => 'wc-myaccount-page',
+				'desc'     => __( 'Client Portal + Order History + Shipment Tracker', 'atelier-visual-builder' ),
+			),
+			array(
+				'role'     => 'policy',
+				'icon'     => '📜',
+				'label'    => __( 'POLICY & RETURNS', 'atelier-visual-builder' ),
+				'title'    => __( 'Shipping, Returns & Privacy Policy', 'atelier-visual-builder' ),
+				'template' => 'wc-policy-page',
+				'desc'     => __( 'Sticky TOC Sidebar + Clauses + Order Tracker', 'atelier-visual-builder' ),
+			),
 		);
 		?>
 		<div class="avb-hub-wrap">
@@ -177,7 +229,7 @@ class AVB_Editor {
 				<div>
 					<span class="avb-hub-badge">ATELIER VISUAL STUDIO v<?php echo esc_html( AVB_VERSION ); ?></span>
 					<h1><?php esc_html_e( 'Atelier Visual Drag & Drop Builder', 'atelier-visual-builder' ); ?></h1>
-					<p><?php esc_html_e( 'Design luxury storefront pages, interactive lookbooks, and editorial layouts visually — no coding required.', 'atelier-visual-builder' ); ?></p>
+					<p><?php esc_html_e( 'Visually customize your Shop, Cart/Basket, Checkout, Product, My Account, Policy, and Landing Pages.', 'atelier-visual-builder' ); ?></p>
 				</div>
 				<div class="avb-hub-create-box">
 					<input type="text" id="avb-new-page-title" placeholder="<?php esc_attr_e( 'New Page Title (e.g. Autumn Lookbook)...', 'atelier-visual-builder' ); ?>" />
@@ -185,7 +237,7 @@ class AVB_Editor {
 						<option value=""><?php esc_html_e( 'Start with Blank Canvas', 'atelier-visual-builder' ); ?></option>
 						<?php foreach ( $templates as $tpl_id => $tpl ) : ?>
 							<option value="<?php echo esc_attr( $tpl_id ); ?>">
-								<?php echo esc_html( 'Template: ' . $tpl['title'] ); ?>
+								<?php echo esc_html( '[' . $tpl['badge'] . '] ' . $tpl['title'] ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
@@ -196,7 +248,26 @@ class AVB_Editor {
 			</header>
 
 			<section class="avb-hub-section">
-				<h2><?php esc_html_e( '1-Click Starter Templates', 'atelier-visual-builder' ); ?></h2>
+				<h2>&#128717; <?php esc_html_e( '1-Click WooCommerce Core Pages (Shop, Cart, Checkout, Product, Account, Policy)', 'atelier-visual-builder' ); ?></h2>
+				<div class="avb-hub-templates-grid">
+					<?php foreach ( $wc_quick_pages as $qp ) : ?>
+						<div class="avb-hub-tpl-card">
+							<div class="avb-hub-tpl-top">
+								<span class="avb-hub-tpl-cat"><?php echo esc_html( $qp['icon'] . ' ' . $qp['label'] ); ?></span>
+								<span class="avb-hub-tpl-badge"><?php esc_html_e( 'CORE STORE PAGE', 'atelier-visual-builder' ); ?></span>
+							</div>
+							<h3><?php echo esc_html( $qp['title'] ); ?></h3>
+							<p><?php echo esc_html( $qp['desc'] ); ?></p>
+							<button type="button" class="avb-hub-use-tpl-btn" data-template="<?php echo esc_attr( $qp['template'] ); ?>" data-title="<?php echo esc_attr( $qp['title'] ); ?>" data-wc-role="<?php echo esc_attr( $qp['role'] ); ?>">
+								&#9998; <?php esc_html_e( 'Build / Customize This Store Page →', 'atelier-visual-builder' ); ?>
+							</button>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</section>
+
+			<section class="avb-hub-section">
+				<h2>&#10024; <?php esc_html_e( 'All 11 Starter Page Templates', 'atelier-visual-builder' ); ?></h2>
 				<div class="avb-hub-templates-grid">
 					<?php foreach ( $templates as $tpl_id => $tpl ) : ?>
 						<div class="avb-hub-tpl-card">
@@ -215,7 +286,7 @@ class AVB_Editor {
 			</section>
 
 			<section class="avb-hub-section">
-				<h2><?php esc_html_e( 'Your Pages & Posts', 'atelier-visual-builder' ); ?></h2>
+				<h2><?php esc_html_e( 'Your Pages, Products & Posts', 'atelier-visual-builder' ); ?></h2>
 				<table class="wp-list-table widefat fixed striped">
 					<thead>
 						<tr>
@@ -293,7 +364,7 @@ class AVB_Editor {
 						<button type="button" id="avb-redo-btn" class="avb-icon-btn" title="<?php esc_attr_e( 'Redo (Ctrl+Y)', 'atelier-visual-builder' ); ?>" disabled>&#8631;</button>
 					</div>
 					<button type="button" id="avb-open-templates-btn" class="avb-top-action-btn">
-						&#10024; <?php esc_html_e( 'Templates', 'atelier-visual-builder' ); ?>
+						&#10024; <?php esc_html_e( 'Templates (11)', 'atelier-visual-builder' ); ?>
 					</button>
 					<button type="button" id="avb-page-settings-btn" class="avb-top-action-btn">
 						&#9881; <?php esc_html_e( 'Page Settings', 'atelier-visual-builder' ); ?>
@@ -316,7 +387,7 @@ class AVB_Editor {
 				<aside class="avb-left-panel">
 					<div class="avb-left-tabs">
 						<button type="button" class="avb-left-tab is-active" data-left-tab="widgets">
-							&#10010; <?php esc_html_e( 'Elements', 'atelier-visual-builder' ); ?>
+							&#10010; <?php esc_html_e( 'Elements (23)', 'atelier-visual-builder' ); ?>
 						</button>
 						<button type="button" class="avb-left-tab" data-left-tab="layers">
 							&#9776; <?php esc_html_e( 'Navigator', 'atelier-visual-builder' ); ?>
@@ -326,7 +397,7 @@ class AVB_Editor {
 					<!-- Elements Palette -->
 					<div class="avb-left-pane is-active" id="avb-left-widgets">
 						<div class="avb-search-wrap">
-							<input type="search" id="avb-widget-search" placeholder="<?php esc_attr_e( 'Search 15+ widgets...', 'atelier-visual-builder' ); ?>" />
+							<input type="search" id="avb-widget-search" placeholder="<?php esc_attr_e( 'Search Shop, Cart, Checkout, Policy...', 'atelier-visual-builder' ); ?>" />
 						</div>
 						<div id="avb-widget-catalog" class="avb-widget-catalog"></div>
 					</div>
@@ -349,10 +420,10 @@ class AVB_Editor {
 							<div class="avb-empty-inner">
 								<span class="avb-empty-icon">✦</span>
 								<h2><?php esc_html_e( 'Start Building Your Page', 'atelier-visual-builder' ); ?></h2>
-								<p><?php esc_html_e( 'Drag any widget from the left panel onto this canvas, click a widget to insert it, or load a complete pre-designed template.', 'atelier-visual-builder' ); ?></p>
+								<p><?php esc_html_e( 'Drag any widget from the left panel onto this canvas, click a widget to insert it, or load a complete pre-designed Shop, Cart, Checkout, Product, Account, or Policy template.', 'atelier-visual-builder' ); ?></p>
 								<div class="avb-empty-actions">
 									<button type="button" class="avb-btn-Empty-tpl" id="avb-empty-open-templates">
-										&#10024; <?php esc_html_e( 'Browse 1-Click Starter Templates', 'atelier-visual-builder' ); ?>
+										&#10024; <?php esc_html_e( 'Browse 11 Starter Templates', 'atelier-visual-builder' ); ?>
 									</button>
 								</div>
 							</div>
@@ -384,8 +455,8 @@ class AVB_Editor {
 				<div class="avb-modal-dialog">
 					<div class="avb-modal-header">
 						<div>
-							<h2>&#10024; <?php esc_html_e( 'Atelier Starter Template Library', 'atelier-visual-builder' ); ?></h2>
-							<p><?php esc_html_e( 'Insert a complete pre-built luxury layout onto your canvas with a single click.', 'atelier-visual-builder' ); ?></p>
+							<h2>&#10024; <?php esc_html_e( 'Atelier Starter Template Library (11 Templates)', 'atelier-visual-builder' ); ?></h2>
+							<p><?php esc_html_e( 'Insert a complete pre-built Shop, Cart, Checkout, Product, My Account, Policy, or Editorial layout with a single click.', 'atelier-visual-builder' ); ?></p>
 						</div>
 						<button type="button" class="avb-modal-close" id="avb-close-templates-btn">&times;</button>
 					</div>
@@ -397,6 +468,31 @@ class AVB_Editor {
 			<div id="avb-toast" class="avb-toast" hidden></div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Assign a post ID to a WooCommerce or WordPress core page role if requested.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $role    Role key (shop, cart, checkout, myaccount, policy).
+	 */
+	private function assign_wc_page_role( $post_id, $role ) {
+		$role = sanitize_key( $role );
+		if ( ! $post_id || empty( $role ) ) {
+			return;
+		}
+		if ( 'shop' === $role ) {
+			update_option( 'woocommerce_shop_page_id', $post_id );
+		} elseif ( 'cart' === $role ) {
+			update_option( 'woocommerce_cart_page_id', $post_id );
+		} elseif ( 'checkout' === $role ) {
+			update_option( 'woocommerce_checkout_page_id', $post_id );
+		} elseif ( 'myaccount' === $role ) {
+			update_option( 'woocommerce_myaccount_page_id', $post_id );
+		} elseif ( 'policy' === $role ) {
+			update_option( 'wp_page_for_privacy_policy', $post_id );
+			update_option( 'woocommerce_terms_page_id', $post_id );
+		}
 	}
 
 	/**
@@ -431,8 +527,8 @@ class AVB_Editor {
 			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
 		}
 
-		$raw_elements  = isset( $_POST['elements'] ) ? wp_unslash( $_POST['elements'] ) : '[]'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$elements      = json_decode( $raw_elements, true );
+		$raw_elements = isset( $_POST['elements'] ) ? wp_unslash( $_POST['elements'] ) : '[]'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$elements     = json_decode( $raw_elements, true );
 		if ( ! is_array( $elements ) ) {
 			$elements = array();
 		}
@@ -452,6 +548,10 @@ class AVB_Editor {
 		update_post_meta( $post_id, '_avb_elements', $elements );
 		update_post_meta( $post_id, '_avb_page_settings', $page_settings );
 		update_post_meta( $post_id, '_avb_enabled', ! empty( $elements ) ? '1' : '0' );
+
+		if ( ! empty( $page_settings['wc_role'] ) ) {
+			$this->assign_wc_page_role( $post_id, $page_settings['wc_role'] );
+		}
 
 		// Compile static HTML into post_content for SEO and standard search indexing.
 		$compiled_html = AVB_Renderer::render_page( $elements, $post_id, false );
@@ -474,7 +574,7 @@ class AVB_Editor {
 	}
 
 	/**
-	 * AJAX: Create a new page (optionally from a starter template) and return its builder URL.
+	 * AJAX: Create or open a WooCommerce page (optionally from a starter template) and return its builder URL.
 	 */
 	public function ajax_create_page() {
 		check_ajax_referer( 'avb_studio_nonce', 'nonce' );
@@ -485,18 +585,36 @@ class AVB_Editor {
 
 		$title       = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$template_id = isset( $_POST['template_id'] ) ? sanitize_key( wp_unslash( $_POST['template_id'] ) ) : '';
+		$wc_role     = isset( $_POST['wc_role'] ) ? sanitize_key( wp_unslash( $_POST['wc_role'] ) ) : '';
 
 		if ( empty( $title ) ) {
 			$title = __( 'Atelier Custom Page', 'atelier-visual-builder' );
 		}
 
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => $title,
-				'post_type'   => 'page',
-				'post_status' => 'draft',
-			)
-		);
+		$post_id = 0;
+
+		// Check if an existing WooCommerce page is already assigned for this role.
+		if ( ! empty( $wc_role ) && function_exists( 'wc_get_page_id' ) && in_array( $wc_role, array( 'shop', 'cart', 'checkout', 'myaccount' ), true ) ) {
+			$existing_id = wc_get_page_id( $wc_role );
+			if ( $existing_id > 0 && get_post( $existing_id ) ) {
+				$post_id = $existing_id;
+			}
+		} elseif ( 'policy' === $wc_role ) {
+			$existing_policy = (int) get_option( 'wp_page_for_privacy_policy' );
+			if ( $existing_policy > 0 && get_post( $existing_policy ) ) {
+				$post_id = $existing_policy;
+			}
+		}
+
+		if ( ! $post_id ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_title'  => $title,
+					'post_type'   => 'page',
+					'post_status' => 'publish',
+				)
+			);
+		}
 
 		if ( is_wp_error( $post_id ) || ! $post_id ) {
 			wp_send_json_error( array( 'message' => 'Could not create page.' ) );
@@ -504,9 +622,25 @@ class AVB_Editor {
 
 		$templates = AVB_Registry::get_templates();
 		if ( $template_id && isset( $templates[ $template_id ] ) ) {
-			$elements = $templates[ $template_id ]['elements'];
-			update_post_meta( $post_id, '_avb_elements', $elements );
-			update_post_meta( $post_id, '_avb_enabled', '1' );
+			$existing_elements = get_post_meta( $post_id, '_avb_elements', true );
+			if ( empty( $existing_elements ) || ! is_array( $existing_elements ) ) {
+				$elements = $templates[ $template_id ]['elements'];
+				update_post_meta( $post_id, '_avb_elements', $elements );
+				update_post_meta( $post_id, '_avb_enabled', '1' );
+			}
+		}
+
+		if ( ! empty( $wc_role ) ) {
+			$this->assign_wc_page_role( $post_id, $wc_role );
+			update_post_meta(
+				$post_id,
+				'_avb_page_settings',
+				array(
+					'layout'   => 'full-width',
+					'bg_color' => '#fbf9f6',
+					'wc_role'  => $wc_role,
+				)
+			);
 		}
 
 		wp_send_json_success(

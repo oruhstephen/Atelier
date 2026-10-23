@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Atelier Visual Builder
  * Plugin URI:        https://example.com/atelier-visual-builder
- * Description:       Elementor-style visual drag-and-drop page builder for WordPress & WooCommerce. Features 18+ luxury e-commerce & editorial widgets, live responsive canvas, Content/Style/Advanced inspector, and 1-click starter templates.
- * Version:           1.0.0
+ * Description:       Elementor-style visual drag-and-drop page builder for WordPress & WooCommerce. Features 23+ luxury e-commerce & editorial widgets, dedicated Shop/Cart/Checkout/Product/My Account/Policy builders, live responsive canvas, and 11 starter templates.
+ * Version:           1.1.0
  * Author:            Atelier Studio
  * Author URI:        https://example.com
  * Text Domain:       atelier-visual-builder
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'AVB_VERSION', '1.0.0' );
+define( 'AVB_VERSION', '1.1.0' );
 define( 'AVB_PATH', plugin_dir_path( __FILE__ ) );
 define( 'AVB_URL', plugin_dir_url( __FILE__ ) );
 
@@ -62,6 +62,7 @@ final class Atelier_Visual_Builder {
 
 		// Frontend rendering hooks.
 		add_filter( 'the_content', array( $this, 'filter_frontend_content' ), 20 );
+		add_filter( 'render_block', array( $this, 'filter_shop_archive_block' ), 20, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 		add_filter( 'body_class', array( $this, 'filter_body_classes' ) );
 
@@ -80,6 +81,15 @@ final class Atelier_Visual_Builder {
 		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
 		}
+	}
+
+	/**
+	 * Supported post types for Atelier Visual Builder.
+	 *
+	 * @return array
+	 */
+	public static function get_supported_post_types() {
+		return array( 'page', 'post', 'product' );
 	}
 
 	/**
@@ -114,7 +124,22 @@ final class Atelier_Visual_Builder {
 	}
 
 	/**
-	 * Render builder elements on the frontend when enabled for a page/post.
+	 * Resolve the current post ID (including the WooCommerce Shop page on shop archives).
+	 *
+	 * @return int
+	 */
+	public static function get_active_post_id() {
+		if ( function_exists( 'is_shop' ) && is_shop() && function_exists( 'wc_get_page_id' ) ) {
+			return (int) wc_get_page_id( 'shop' );
+		}
+		if ( is_singular() ) {
+			return (int) get_the_ID();
+		}
+		return 0;
+	}
+
+	/**
+	 * Render builder elements on the frontend when enabled for a page/post/product.
 	 *
 	 * @param string $content Post content.
 	 * @return string
@@ -138,6 +163,37 @@ final class Atelier_Visual_Builder {
 	}
 
 	/**
+	 * Render custom Atelier Builder Shop page on Block Theme shop archive when enabled.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @param array  $block         Block data array.
+	 * @return string
+	 */
+	public function filter_shop_archive_block( $block_content, $block ) {
+		if ( is_admin() || ! function_exists( 'is_shop' ) || ! is_shop() ) {
+			return $block_content;
+		}
+		if ( empty( $block['blockName'] ) || 'core/group' !== $block['blockName'] ) {
+			return $block_content;
+		}
+		if ( empty( $block['attrs']['tagName'] ) || 'main' !== $block['attrs']['tagName'] ) {
+			return $block_content;
+		}
+
+		$shop_id = function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'shop' ) : 0;
+		if ( ! $shop_id || ! self::is_builder_enabled( $shop_id ) ) {
+			return $block_content;
+		}
+
+		$elements = get_post_meta( $shop_id, '_avb_elements', true );
+		if ( ! is_array( $elements ) || empty( $elements ) ) {
+			return $block_content;
+		}
+
+		return '<main class="wp-block-group avb-shop-main">' . AVB_Renderer::render_page( $elements, $shop_id ) . '</main>';
+	}
+
+	/**
 	 * Enqueue frontend CSS and JS for builder pages.
 	 */
 	public function enqueue_frontend_assets() {
@@ -156,18 +212,16 @@ final class Atelier_Visual_Builder {
 			true
 		);
 
-		if ( is_singular() ) {
-			$post_id = get_the_ID();
-			if ( self::is_builder_enabled( $post_id ) ) {
-				wp_enqueue_style( 'avb-frontend' );
-				wp_enqueue_script( 'avb-frontend' );
+		$post_id = self::get_active_post_id();
+		if ( $post_id && self::is_builder_enabled( $post_id ) ) {
+			wp_enqueue_style( 'avb-frontend' );
+			wp_enqueue_script( 'avb-frontend' );
 
-				$page_settings = get_post_meta( $post_id, '_avb_page_settings', true );
-				if ( is_array( $page_settings ) && ! empty( $page_settings['bg_color'] ) ) {
-					$bg = sanitize_hex_color( $page_settings['bg_color'] );
-					if ( $bg ) {
-						wp_add_inline_style( 'avb-frontend', 'body.avb-page-active { background-color: ' . esc_attr( $bg ) . ' !important; }' );
-					}
+			$page_settings = get_post_meta( $post_id, '_avb_page_settings', true );
+			if ( is_array( $page_settings ) && ! empty( $page_settings['bg_color'] ) ) {
+				$bg = sanitize_hex_color( $page_settings['bg_color'] );
+				if ( $bg ) {
+					wp_add_inline_style( 'avb-frontend', 'body.avb-page-active { background-color: ' . esc_attr( $bg ) . ' !important; }' );
 				}
 			}
 		}
@@ -180,27 +234,25 @@ final class Atelier_Visual_Builder {
 	 * @return array
 	 */
 	public function filter_body_classes( $classes ) {
-		if ( is_singular() ) {
-			$post_id = get_the_ID();
-			if ( self::is_builder_enabled( $post_id ) ) {
-				$classes[]     = 'avb-page-active';
-				$page_settings = get_post_meta( $post_id, '_avb_page_settings', true );
-				$layout        = isset( $page_settings['layout'] ) ? $page_settings['layout'] : 'full-width';
-				$classes[]     = 'avb-layout-' . sanitize_html_class( $layout );
-			}
+		$post_id = self::get_active_post_id();
+		if ( $post_id && self::is_builder_enabled( $post_id ) ) {
+			$classes[]     = 'avb-page-active';
+			$page_settings = get_post_meta( $post_id, '_avb_page_settings', true );
+			$layout        = isset( $page_settings['layout'] ) ? $page_settings['layout'] : 'full-width';
+			$classes[]     = 'avb-layout-' . sanitize_html_class( $layout );
 		}
 		return $classes;
 	}
 
 	/**
-	 * Add "Edit with Atelier Builder" link in Pages/Posts list table.
+	 * Add "Edit with Atelier Builder" link in Pages/Posts/Products list table.
 	 *
 	 * @param array   $actions Row actions.
 	 * @param WP_Post $post    Post object.
 	 * @return array
 	 */
 	public function add_row_action_link( $actions, $post ) {
-		if ( ! in_array( $post->post_type, array( 'page', 'post' ), true ) ) {
+		if ( ! in_array( $post->post_type, self::get_supported_post_types(), true ) ) {
 			return $actions;
 		}
 		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
@@ -232,14 +284,14 @@ final class Atelier_Visual_Builder {
 	}
 
 	/**
-	 * Register meta box inside the standard WordPress Post/Page Editor.
+	 * Register meta box inside the standard WordPress Post/Page/Product Editor.
 	 */
 	public function register_builder_metabox() {
 		add_meta_box(
 			'avb_launcher_metabox',
 			__( 'Atelier Visual Builder', 'atelier-visual-builder' ),
 			array( $this, 'render_launcher_metabox' ),
-			array( 'page', 'post' ),
+			self::get_supported_post_types(),
 			'side',
 			'high'
 		);
@@ -256,7 +308,7 @@ final class Atelier_Visual_Builder {
 		?>
 		<div style="padding:8px 0;">
 			<p style="margin:0 0 12px;color:#555;font-size:13px;">
-				<?php esc_html_e( 'Design this page visually with drag-and-drop sections, luxury WooCommerce grids, and live responsive controls.', 'atelier-visual-builder' ); ?>
+				<?php esc_html_e( 'Design this page visually with drag-and-drop sections, WooCommerce Shop/Cart/Checkout/Account widgets, and live responsive controls.', 'atelier-visual-builder' ); ?>
 			</p>
 			<a href="<?php echo esc_url( $url ); ?>" class="button button-primary button-large" style="width:100%;text-align:center;background:#161514;border-color:#161514;color:#fff;font-weight:600;padding:6px 12px;display:inline-block;box-sizing:border-box;">
 				&#9998; <?php esc_html_e( 'Edit with Atelier Builder', 'atelier-visual-builder' ); ?>
@@ -276,11 +328,18 @@ final class Atelier_Visual_Builder {
 	 * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
 	public function add_admin_bar_button( $wp_admin_bar ) {
-		if ( is_admin() || ! is_singular( array( 'page', 'post' ) ) ) {
+		if ( is_admin() ) {
 			return;
 		}
-		$post_id = get_the_ID();
-		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+
+		$post_id = 0;
+		if ( function_exists( 'is_shop' ) && is_shop() && function_exists( 'wc_get_page_id' ) ) {
+			$post_id = wc_get_page_id( 'shop' );
+		} elseif ( is_singular( self::get_supported_post_types() ) ) {
+			$post_id = get_the_ID();
+		}
+
+		if ( ! $post_id || $post_id < 1 || ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
