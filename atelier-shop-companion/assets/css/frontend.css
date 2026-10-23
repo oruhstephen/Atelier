@@ -1283,3 +1283,104 @@ html[data-darkmode="dark"] .atelier-darkmode-toggle .atelier-icon-sun {
 	transform: scale(1.65);
 	background: rgba(31, 58, 95, 0.22);
 }
+
+
+/* ==========================================================================
+   10. WooCommerce Customizer Card Styles, Alignment, Hover & Visibility Rules
+   ========================================================================== */
+
+/* 10.1 Product Card Alignment (Left / Center / Right) */
+body.atelier-card-align-center ul.products li.product,
+body.atelier-card-align-center .wc-block-product {
+	text-align: center;
+}
+body.atelier-card-align-center .wc-block-components-product-rating,
+body.atelier-card-align-center .star-rating {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+body.atelier-card-align-right ul.products li.product,
+body.atelier-card-align-right .wc-block-product {
+	text-align: right;
+}
+
+/* 10.2 Product Card Frame Styles (Bordered & Elevated) */
+body.atelier-card-style-bordered ul.products li.product,
+body.atelier-card-style-bordered .wc-block-product {
+	border: 1px solid var(--atelier-border);
+	border-radius: 6px;
+	padding: 0.85rem;
+	background: var(--atelier-base);
+	transition: border-color 0.2s ease, transform 0.2s ease;
+}
+body.atelier-card-style-bordered ul.products li.product:hover,
+body.atelier-card-style-bordered .wc-block-product:hover {
+	border-color: var(--atelier-contrast);
+}
+
+body.atelier-card-style-elevated ul.products li.product,
+body.atelier-card-style-elevated .wc-block-product {
+	border: 1px solid var(--atelier-border);
+	border-radius: 6px;
+	padding: 0.85rem;
+	background: var(--atelier-base);
+	box-shadow: var(--atelier-shadow);
+	transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+body.atelier-card-style-elevated ul.products li.product:hover,
+body.atelier-card-style-elevated .wc-block-product:hover {
+	transform: translateY(-3px);
+}
+
+/* 10.3 Product Image Scale Zoom Hover */
+body.atelier-hover-zoom .atelier-product-card-media-wrap img,
+body.atelier-hover-swap-zoom .atelier-product-card-media-wrap img,
+body.atelier-hover-zoom ul.products li.product img {
+	transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease;
+}
+body.atelier-hover-zoom .atelier-product-card-media-wrap:hover img,
+body.atelier-hover-swap-zoom .atelier-product-card-media-wrap:hover img,
+body.atelier-hover-zoom ul.products li.product:hover img {
+	transform: scale(1.06);
+}
+
+/* 10.4 Catalog Element Visibility Toggles */
+body.atelier-hide-loop-cat .wc-block-product .taxonomy-product_cat,
+body.atelier-hide-loop-cat .bloghash-loop-product__category-wrap {
+	display: none !important;
+}
+body.atelier-hide-loop-rating .wc-block-product .wc-block-components-product-rating,
+body.atelier-hide-loop-rating ul.products li.product .star-rating {
+	display: none !important;
+}
+body.atelier-hide-loop-price .wc-block-product .wc-block-components-product-price,
+body.atelier-hide-loop-price ul.products li.product .price {
+	display: none !important;
+}
+body.atelier-hide-loop-btn .wc-block-product .wp-block-woocommerce-product-button,
+body.atelier-hide-loop-btn ul.products li.product .add_to_cart_button,
+body.atelier-hide-loop-btn ul.products li.product .button {
+	display: none !important;
+}
+
+/* 10.5 Single Product Meta & Sticky Gallery Overrides */
+body.atelier-hide-single-meta .wp-block-woocommerce-product-meta,
+body.atelier-hide-single-meta .product_meta {
+	display: none !important;
+}
+body.atelier-disable-sticky-gallery .atelier-sticky-gallery {
+	position: static !important;
+}
+
+/* 10.6 Distraction-Free Checkout & Empty Cart Button */
+body.atelier-distraction-free-checkout header .wp-block-navigation,
+body.atelier-distraction-free-checkout header .wp-block-search,
+body.atelier-distraction-free-checkout .atelier-header-wishlist-trigger {
+	display: none !important;
+}
+
+.atelier-empty-cart-return {
+	text-align: center;
+	margin-top: 1.5rem;
+}

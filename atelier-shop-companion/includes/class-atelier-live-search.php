@@ -32,18 +32,20 @@ class Atelier_Companion_Live_Search {
 			wp_send_json_success( array( 'results' => array() ) );
 		}
 
+		$max_results = max( 3, min( 12, (int) Atelier_Companion_Settings::get( 'live_search_max_results', 6 ) ) );
+
 		$query_args = array(
 			'post_type'      => 'product',
 			'post_status'    => 'publish',
-			'posts_per_page' => 6,
+			'posts_per_page' => $max_results,
 			's'              => $term,
 			'fields'         => 'ids',
 		);
 
 		$product_ids = get_posts( $query_args );
 
-		// Also check SKU matches if fewer than 6 results returned.
-		if ( count( $product_ids ) < 6 && function_exists( 'wc_get_product_id_by_sku' ) ) {
+		// Also check SKU matches if fewer than $max_results returned.
+		if ( count( $product_ids ) < $max_results && function_exists( 'wc_get_product_id_by_sku' ) ) {
 			$sku_id = wc_get_product_id_by_sku( $term );
 			if ( $sku_id && ! in_array( $sku_id, $product_ids, true ) ) {
 				array_unshift( $product_ids, $sku_id );

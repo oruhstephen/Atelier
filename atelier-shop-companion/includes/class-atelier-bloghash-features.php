@@ -1,18 +1,17 @@
 <?php
 /**
- * Atelier Companion — Bloghash Pro Ported Features Module.
+ * Atelier Companion — Bloghash Pro & WooCommerce Customizer Features Module.
  *
- * Ports signature e-commerce, UI, and editorial features from Bloghash Pro into
- * Atelier Shop & Atelier Shop Companion:
- * 1. Product Image Swap on Hover (Block & Classic product cards)
- * 2. Percentage Discount Sale Badges (-25%) & "Sold Out" Badges
- * 3. Plus / Minus (+/-) Quantity Stepper Buttons
- * 4. Dark / Light Mode Header Switcher (persistent via localStorage)
- * 5. Sticky Header with Scroll Elevation
- * 6. Top Marquee Announcement Ticker Bar with Live Date & Play/Pause
- * 7. Floating Smooth Scroll-to-Top Button
- * 8. Auto Collapsible Table of Contents (TOC) & Post Quick-Like Heart Counter
- * 9. Interactive Desktop Cursor Dot Follower (optional)
+ * Implements all WooCommerce Customizer options & Bloghash Pro storefront features:
+ * - Shop Grid Columns (2–6), Products Per Page, Card Alignment, Card Frame Style, Image Aspect Ratio
+ * - Product Image Hover Effects (None, Image Swap, Zoom, Swap + Zoom)
+ * - Sale Badge Display Modes (Percentage -25%, Custom Text, or Hide) & Custom "Sold Out" Badge
+ * - Catalog Element Visibility (Category, Ratings, Price, Add to Cart button)
+ * - Single Product Gallery Controls (Zoom, Lightbox, Slider, Sticky Gallery, Meta Visibility)
+ * - Related Products, Up-Sells, and Cart Cross-Sells (Visibility, Columns & Count)
+ * - Empty Cart "Return to Shop" Button & Distraction-Free Checkout Mode
+ * - Plus / Minus (+/-) Quantity Stepper Buttons
+ * - Dark / Light Mode Header Switcher, Sticky Header, Top Marquee Ticker, Scroll-to-Top, TOC & Quick Likes
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,19 +23,27 @@ class Atelier_Companion_Bloghash_Features {
 	public const LIKE_META_KEY = '_atelier_post_likes_count';
 
 	/**
-	 * Initialize enabled Bloghash Pro features.
+	 * Initialize enabled Bloghash Pro & WooCommerce Customizer features.
 	 */
 	public static function init(): void {
-		// 1. Body classes for Sticky Header & Dark Mode default.
+		// 1. Body classes & Dynamic Customizer CSS for WooCommerce Catalog & Single Product.
 		add_filter( 'body_class', array( __CLASS__, 'filter_body_classes' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_dynamic_customizer_css' ), 25 );
+		add_action( 'wp', array( __CLASS__, 'apply_single_product_and_catalog_rules' ) );
 
-		// 2. Product Image Swap on Hover.
-		if ( Atelier_Companion_Settings::get( 'enable_image_swap', true ) ) {
+		// 2. Shop Columns & Products Per Page (Classic + Block Product Collection).
+		add_filter( 'loop_shop_columns', array( __CLASS__, 'filter_shop_columns' ), 20 );
+		add_filter( 'loop_shop_per_page', array( __CLASS__, 'filter_products_per_page' ), 20 );
+		add_filter( 'render_block_data', array( __CLASS__, 'filter_product_collection_block_data' ), 10, 1 );
+
+		// 3. Product Image Swap / Hover Effect.
+		$hover_mode = (string) Atelier_Companion_Settings::get( 'shop_product_hover', 'image-swap' );
+		if ( Atelier_Companion_Settings::get( 'enable_image_swap', true ) && in_array( $hover_mode, array( 'image-swap', 'swap-zoom' ), true ) ) {
 			add_action( 'woocommerce_before_shop_loop_item_title', array( __CLASS__, 'render_classic_image_swap' ), 11 );
 			add_filter( 'render_block_woocommerce/product-image', array( __CLASS__, 'inject_block_image_swap' ), 8, 2 );
 		}
 
-		// 3. Percentage Discount Sale Badge (-XX%) & Sold Out Badge.
+		// 4. Sale Badge Display Mode (Percentage / Text / Hide) & Sold Out Badge.
 		if ( Atelier_Companion_Settings::get( 'enable_percentage_sale_badge', true ) ) {
 			add_filter( 'woocommerce_sale_flash', array( __CLASS__, 'percentage_sale_badge_html' ), 20, 3 );
 			add_action( 'woocommerce_before_shop_loop_item_title', array( __CLASS__, 'render_out_of_stock_badge' ), 10 );
@@ -44,21 +51,32 @@ class Atelier_Companion_Bloghash_Features {
 			add_filter( 'render_block_woocommerce/product-image', array( __CLASS__, 'filter_product_image_badges' ), 12, 2 );
 		}
 
-		// 4. Dark / Light Mode Header Toggle Button.
+		// 5. Related Products, Up-Sells & Cart Cross-Sells Customization.
+		add_filter( 'woocommerce_output_related_products_args', array( __CLASS__, 'filter_related_products_args' ), 20 );
+		add_filter( 'woocommerce_upsell_display_args', array( __CLASS__, 'filter_upsell_products_args' ), 20 );
+		add_filter( 'woocommerce_cross_sells_columns', array( __CLASS__, 'filter_cross_sells_columns' ), 20 );
+		add_filter( 'render_block_woocommerce/related-products', array( __CLASS__, 'filter_related_products_block' ), 10, 1 );
+
+		// 6. Empty Cart "Return to Shop" Button (Bloghash Pro).
+		if ( Atelier_Companion_Settings::get( 'wc_empty_cart_button', true ) ) {
+			add_action( 'woocommerce_cart_is_empty', array( __CLASS__, 'render_empty_cart_return_button' ), 15 );
+		}
+
+		// 7. Dark / Light Mode Header Toggle Button.
 		if ( Atelier_Companion_Settings::get( 'enable_dark_mode', true ) ) {
 			add_action( 'wp_head', array( __CLASS__, 'output_early_dark_mode_script' ), 1 );
 			add_filter( 'render_block_woocommerce/mini-cart', array( __CLASS__, 'inject_dark_mode_toggle' ), 8, 2 );
 		}
 
-		// 5. Top Marquee Announcement Ticker Bar.
+		// 8. Top Marquee Announcement Ticker Bar.
 		if ( Atelier_Companion_Settings::get( 'enable_top_ticker', true ) ) {
 			add_action( 'wp_body_open', array( __CLASS__, 'render_top_ticker_bar' ), 5 );
 		}
 
-		// 6. Smooth Scroll-to-Top Button & Optional Cursor Dot in Footer.
+		// 9. Smooth Scroll-to-Top Button & Optional Cursor Dot in Footer.
 		add_action( 'wp_footer', array( __CLASS__, 'render_footer_ui_elements' ), 20 );
 
-		// 7. Collapsible Table of Contents (TOC) & Post Quick-Like Button on Blog Posts.
+		// 10. Collapsible Table of Contents (TOC) & Post Quick-Like Button on Blog Posts.
 		if ( Atelier_Companion_Settings::get( 'enable_toc', true ) || Atelier_Companion_Settings::get( 'enable_post_likes', true ) ) {
 			add_filter( 'the_content', array( __CLASS__, 'enhance_single_post_content' ), 15 );
 		}
@@ -70,7 +88,7 @@ class Atelier_Companion_Bloghash_Features {
 	}
 
 	/**
-	 * Add body classes for Sticky Header and UI enhancements.
+	 * Add body classes for Sticky Header, Card Alignment, Card Style, Hover Effect, and Visibility toggles.
 	 *
 	 * @param array<string> $classes Existing body classes.
 	 * @return array<string>
@@ -82,7 +100,170 @@ class Atelier_Companion_Bloghash_Features {
 		if ( Atelier_Companion_Settings::get( 'enable_qty_buttons', true ) ) {
 			$classes[] = 'atelier-has-qty-buttons';
 		}
+
+		$align      = (string) Atelier_Companion_Settings::get( 'shop_card_alignment', 'left' );
+		$card_style = (string) Atelier_Companion_Settings::get( 'shop_card_style', 'minimal' );
+		$hover      = (string) Atelier_Companion_Settings::get( 'shop_product_hover', 'image-swap' );
+
+		$classes[] = 'atelier-card-align-' . sanitize_html_class( $align );
+		$classes[] = 'atelier-card-style-' . sanitize_html_class( $card_style );
+		$classes[] = 'atelier-hover-' . sanitize_html_class( $hover );
+
+		if ( ! Atelier_Companion_Settings::get( 'catalog_show_category', true ) ) {
+			$classes[] = 'atelier-hide-loop-cat';
+		}
+		if ( ! Atelier_Companion_Settings::get( 'catalog_show_rating', true ) ) {
+			$classes[] = 'atelier-hide-loop-rating';
+		}
+		if ( ! Atelier_Companion_Settings::get( 'catalog_show_price', true ) ) {
+			$classes[] = 'atelier-hide-loop-price';
+		}
+		if ( ! Atelier_Companion_Settings::get( 'catalog_show_add_to_cart', true ) ) {
+			$classes[] = 'atelier-hide-loop-btn';
+		}
+		if ( ! Atelier_Companion_Settings::get( 'single_show_meta', true ) ) {
+			$classes[] = 'atelier-hide-single-meta';
+		}
+		if ( ! Atelier_Companion_Settings::get( 'wc_sticky_gallery', true ) ) {
+			$classes[] = 'atelier-disable-sticky-gallery';
+		}
+		if ( function_exists( 'is_checkout' ) && is_checkout() && Atelier_Companion_Settings::get( 'wc_distraction_free_checkout', false ) ) {
+			$classes[] = 'atelier-distraction-free-checkout';
+		}
+
 		return $classes;
+	}
+
+	/**
+	 * Output dynamic CSS variables for Shop Grid Columns & Product Image Aspect Ratio.
+	 */
+	public static function enqueue_dynamic_customizer_css(): void {
+		$cols  = max( 2, min( 6, (int) Atelier_Companion_Settings::get( 'shop_columns', 4 ) ) );
+		$ratio = (string) Atelier_Companion_Settings::get( 'shop_image_aspect_ratio', '3/4' );
+
+		$css = ":root { --atelier-shop-columns: {$cols}; }";
+		if ( 'auto' !== $ratio ) {
+			$css .= ".wc-block-product-template__responsive, ul.products li.product .atelier-product-card-media-wrap img, .wc-block-components-product-image img { aspect-ratio: {$ratio}; object-fit: cover; }";
+		}
+
+		wp_add_inline_style( 'atelier-companion', $css );
+	}
+
+	/**
+	 * Apply Single Product Gallery supports, Up-Sell/Cross-Sell visibility, and Catalog element hooks.
+	 */
+	public static function apply_single_product_and_catalog_rules(): void {
+		if ( ! Atelier_Companion_Settings::get( 'wc_gallery_zoom', true ) ) {
+			remove_theme_support( 'wc-product-gallery-zoom' );
+		}
+		if ( ! Atelier_Companion_Settings::get( 'wc_gallery_lightbox', true ) ) {
+			remove_theme_support( 'wc-product-gallery-lightbox' );
+		}
+		if ( ! Atelier_Companion_Settings::get( 'wc_gallery_slider', true ) ) {
+			remove_theme_support( 'wc-product-gallery-slider' );
+		}
+
+		if ( ! Atelier_Companion_Settings::get( 'wc_related_products', true ) ) {
+			remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );
+		}
+		if ( ! Atelier_Companion_Settings::get( 'wc_upsell_products', true ) ) {
+			remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_upsell_display', 15 );
+		}
+		if ( ! Atelier_Companion_Settings::get( 'wc_cross_sell_products', true ) ) {
+			remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display' );
+		}
+	}
+
+	/**
+	 * Filter classic WooCommerce shop columns.
+	 */
+	public static function filter_shop_columns(): int {
+		return max( 2, min( 6, (int) Atelier_Companion_Settings::get( 'shop_columns', 4 ) ) );
+	}
+
+	/**
+	 * Filter classic WooCommerce products per page.
+	 */
+	public static function filter_products_per_page(): int {
+		return max( 4, min( 48, (int) Atelier_Companion_Settings::get( 'shop_products_per_page', 12 ) ) );
+	}
+
+	/**
+	 * Dynamically apply Customizer `shop_columns` and `shop_products_per_page` to WooCommerce Product Collection blocks.
+	 *
+	 * @param array<string, mixed> $parsed_block Parsed block data.
+	 * @return array<string, mixed>
+	 */
+	public static function filter_product_collection_block_data( array $parsed_block ): array {
+		$name = $parsed_block['blockName'] ?? '';
+		if ( 'woocommerce/product-collection' === $name ) {
+			$cols     = max( 2, min( 6, (int) Atelier_Companion_Settings::get( 'shop_columns', 4 ) ) );
+			$per_page = max( 4, min( 48, (int) Atelier_Companion_Settings::get( 'shop_products_per_page', 12 ) ) );
+
+			if ( isset( $parsed_block['attrs']['displayLayout']['columns'] ) ) {
+				$parsed_block['attrs']['displayLayout']['columns'] = $cols;
+			}
+			if ( isset( $parsed_block['attrs']['query']['perPage'] ) ) {
+				$parsed_block['attrs']['query']['perPage'] = $per_page;
+			}
+		}
+		return $parsed_block;
+	}
+
+	/**
+	 * Filter Related Products count and columns.
+	 *
+	 * @param array<string, mixed> $args Related products args.
+	 * @return array<string, mixed>
+	 */
+	public static function filter_related_products_args( array $args ): array {
+		$args['posts_per_page'] = max( 1, min( 12, (int) Atelier_Companion_Settings::get( 'wc_related_count', 4 ) ) );
+		$args['columns']        = max( 1, min( 6, (int) Atelier_Companion_Settings::get( 'wc_related_columns', 4 ) ) );
+		return $args;
+	}
+
+	/**
+	 * Filter Up-Sell Products columns.
+	 *
+	 * @param array<string, mixed> $args Upsell args.
+	 * @return array<string, mixed>
+	 */
+	public static function filter_upsell_products_args( array $args ): array {
+		$args['columns'] = max( 1, min( 6, (int) Atelier_Companion_Settings::get( 'wc_upsells_columns', 4 ) ) );
+		return $args;
+	}
+
+	/**
+	 * Filter Cart Cross-Sells columns.
+	 */
+	public static function filter_cross_sells_columns(): int {
+		return max( 1, min( 6, (int) Atelier_Companion_Settings::get( 'wc_cross_sell_columns', 4 ) ) );
+	}
+
+	/**
+	 * Hide `woocommerce/related-products` block when disabled in Customizer.
+	 */
+	public static function filter_related_products_block( string $block_content ): string {
+		if ( ! Atelier_Companion_Settings::get( 'wc_related_products', true ) ) {
+			return '';
+		}
+		return $block_content;
+	}
+
+	/**
+	 * Render styled "Return to Shop" button on Empty Cart (ported from bloghash_wc_empty_cart_button).
+	 */
+	public static function render_empty_cart_return_button(): void {
+		if ( ! function_exists( 'wc_get_page_permalink' ) ) {
+			return;
+		}
+		?>
+		<p class="atelier-empty-cart-return">
+			<a class="button wc-backward" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>">
+				&larr; <?php esc_html_e( 'Return to Shop', 'atelier-companion' ); ?>
+			</a>
+		</p>
+		<?php
 	}
 
 	/**
@@ -176,7 +357,6 @@ class Atelier_Companion_Bloghash_Features {
 			return $block_content;
 		}
 
-		// Insert the secondary hover image right before the closing </a> or </div>.
 		if ( str_contains( $block_content, '</a>' ) ) {
 			$block_content = preg_replace( '/<\/a>/', $hover_img . '</a>', $block_content, 1 ) ?? $block_content;
 		} else {
@@ -213,7 +393,7 @@ class Atelier_Companion_Bloghash_Features {
 	}
 
 	/**
-	 * Calculate percentage discount text (e.g. "-25%") for a product (ported from bloghash_wc_add_percentage_to_sale_badge).
+	 * Calculate sale badge text based on Customizer `product_sale_badge` mode (`percentage`, `text`, or `hide`).
 	 *
 	 * @param WC_Product $product Product object.
 	 * @return string
@@ -221,6 +401,14 @@ class Atelier_Companion_Bloghash_Features {
 	public static function get_discount_percentage_text( WC_Product $product ): string {
 		if ( ! $product->is_on_sale() ) {
 			return '';
+		}
+
+		$mode = (string) Atelier_Companion_Settings::get( 'product_sale_badge', 'percentage' );
+		if ( 'hide' === $mode ) {
+			return '__HIDE__';
+		}
+		if ( 'text' === $mode ) {
+			return (string) Atelier_Companion_Settings::get( 'product_sale_badge_text', __( 'Sale!', 'atelier-companion' ) );
 		}
 
 		if ( $product->is_type( 'variable' ) ) {
@@ -248,11 +436,11 @@ class Atelier_Companion_Bloghash_Features {
 			}
 		}
 
-		return '';
+		return (string) Atelier_Companion_Settings::get( 'product_sale_badge_text', __( 'Sale!', 'atelier-companion' ) );
 	}
 
 	/**
-	 * Filter classic WooCommerce sale flash to show percentage discount.
+	 * Filter classic WooCommerce sale flash to show percentage discount, custom text, or hide.
 	 *
 	 * @param string      $html    Default sale badge HTML.
 	 * @param WP_Post     $post    Post object.
@@ -263,11 +451,15 @@ class Atelier_Companion_Bloghash_Features {
 		if ( ! ( $product instanceof WC_Product ) ) {
 			return $html;
 		}
+		$sold_out_label = (string) Atelier_Companion_Settings::get( 'sold_out_badge_text', __( 'Sold Out', 'atelier-companion' ) );
 		if ( ! $product->is_in_stock() && ! $product->backorders_allowed() ) {
-			return '<span class="onsale atelier-sold-out-badge">' . esc_html__( 'Sold Out', 'atelier-companion' ) . '</span>';
+			return '<span class="onsale atelier-sold-out-badge">' . esc_html( $sold_out_label ) . '</span>';
 		}
-		$pct = self::get_discount_percentage_text( $product );
-		return $pct ? '<span class="onsale atelier-pct-badge">' . esc_html( $pct ) . '</span>' : $html;
+		$badge_text = self::get_discount_percentage_text( $product );
+		if ( '__HIDE__' === $badge_text ) {
+			return '';
+		}
+		return $badge_text ? '<span class="onsale atelier-pct-badge">' . esc_html( $badge_text ) . '</span>' : $html;
 	}
 
 	/**
@@ -276,12 +468,13 @@ class Atelier_Companion_Bloghash_Features {
 	public static function render_out_of_stock_badge(): void {
 		global $product;
 		if ( $product instanceof WC_Product && ! $product->is_in_stock() ) {
-			echo '<span class="onsale atelier-sold-out-badge">' . esc_html__( 'Sold Out', 'atelier-companion' ) . '</span>';
+			$sold_out_label = (string) Atelier_Companion_Settings::get( 'sold_out_badge_text', __( 'Sold Out', 'atelier-companion' ) );
+			echo '<span class="onsale atelier-sold-out-badge">' . esc_html( $sold_out_label ) . '</span>';
 		}
 	}
 
 	/**
-	 * Replace generic "Sale" text in WooCommerce Sale Badge blocks with exact "-XX%" percentage.
+	 * Filter WooCommerce Sale Badge blocks according to Customizer `product_sale_badge` setting.
 	 *
 	 * @param string               $block_content Block HTML.
 	 * @param array<string, mixed> $block         Block array.
@@ -293,9 +486,12 @@ class Atelier_Companion_Bloghash_Features {
 		if ( ! ( $prod instanceof WC_Product ) ) {
 			return $block_content;
 		}
-		$pct = self::get_discount_percentage_text( $prod );
-		if ( $pct ) {
-			$block_content = preg_replace( '/>(\s*Sale!?\s*)</i', '>' . esc_html( $pct ) . '<', $block_content ) ?? $block_content;
+		$badge_text = self::get_discount_percentage_text( $prod );
+		if ( '__HIDE__' === $badge_text ) {
+			return '';
+		}
+		if ( $badge_text ) {
+			$block_content = preg_replace( '/>(\s*Sale!?\s*)</i', '>' . esc_html( $badge_text ) . '<', $block_content ) ?? $block_content;
 		}
 		return $block_content;
 	}
@@ -315,12 +511,15 @@ class Atelier_Companion_Bloghash_Features {
 		}
 
 		if ( ! $prod->is_in_stock() && ! str_contains( $block_content, 'atelier-sold-out-badge' ) ) {
-			$sold_out      = '<span class="atelier-sold-out-badge">' . esc_html__( 'Sold Out', 'atelier-companion' ) . '</span>';
-			$block_content = $sold_out . $block_content;
+			$sold_out_label = (string) Atelier_Companion_Settings::get( 'sold_out_badge_text', __( 'Sold Out', 'atelier-companion' ) );
+			$sold_out       = '<span class="atelier-sold-out-badge">' . esc_html( $sold_out_label ) . '</span>';
+			$block_content  = $sold_out . $block_content;
 		} else {
-			$pct = self::get_discount_percentage_text( $prod );
-			if ( $pct ) {
-				$block_content = preg_replace( '/>(\s*Sale!?\s*)</i', '>' . esc_html( $pct ) . '<', $block_content ) ?? $block_content;
+			$badge_text = self::get_discount_percentage_text( $prod );
+			if ( '__HIDE__' === $badge_text ) {
+				$block_content = preg_replace( '/<div class="wc-block-components-product-sale-badge[^>]*>.*?<\/div>/is', '', $block_content ) ?? $block_content;
+			} elseif ( $badge_text ) {
+				$block_content = preg_replace( '/>(\s*Sale!?\s*)</i', '>' . esc_html( $badge_text ) . '<', $block_content ) ?? $block_content;
 			}
 		}
 
@@ -332,6 +531,9 @@ class Atelier_Companion_Bloghash_Features {
 	 */
 	public static function render_top_ticker_bar(): void {
 		if ( is_admin() ) {
+			return;
+		}
+		if ( function_exists( 'is_checkout' ) && is_checkout() && Atelier_Companion_Settings::get( 'wc_distraction_free_checkout', false ) ) {
 			return;
 		}
 
@@ -408,13 +610,11 @@ class Atelier_Companion_Bloghash_Features {
 			return $content;
 		}
 
-		// 1. Auto Table of Contents if post has at least 2 H2/H3 headings.
 		if ( Atelier_Companion_Settings::get( 'enable_toc', true ) && ! str_contains( $content, 'atelier-toc-wrap' ) ) {
 			$toc_data = self::generate_toc_from_content( $content );
 			$content  = $toc_data['toc_html'] . $toc_data['content'];
 		}
 
-		// 2. Post Quick-Like button at bottom of article.
 		if ( Atelier_Companion_Settings::get( 'enable_post_likes', true ) ) {
 			$content .= self::get_post_like_button_html( (int) get_the_ID() );
 		}
@@ -469,7 +669,6 @@ class Atelier_Companion_Bloghash_Features {
 				$inner_html
 			);
 
-			// Replace first occurrence of this heading.
 			$pos = strpos( $content, $match[0] );
 			if ( false !== $pos ) {
 				$content = substr_replace( $content, $replacement_heading, $pos, strlen( $match[0] ) );
@@ -552,7 +751,7 @@ class Atelier_Companion_Bloghash_Features {
 		$count = (int) get_post_meta( $post_id, self::LIKE_META_KEY, true );
 
 		if ( $liked ) {
-			$count = max( 0, $count - 1 );
+			$count     = max( 0, $count - 1 );
 			$new_state = false;
 		} else {
 			++$count;
